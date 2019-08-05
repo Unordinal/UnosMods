@@ -11,9 +11,11 @@ namespace InfoOnPing
             string displayName = $"{BI.GetDisplayName()}";
             string goldReward = $"{BI.goldReward}";
             string expReward = $"{BI.expReward.ToString("n0")}";
-            string message = $"<color={RoR2Colors.Tier1ItemDark}>{displayName}: " +         // Name
-                             $"<color={RoR2Colors.Money}>${goldReward}</color>, " +         // Money Reward
-                             $"<color={RoR2Colors.LunarCoin}>{expReward} EXP</color> ";     // EXP Reward
+            string reward = $"<color={RoR2Colors.Money}>${goldReward}</color>, <color={RoR2Colors.LunarCoin}>{expReward} EXP</color>";
+            if (BI.InteractableIsUsedUp())
+                reward = $"<color={RoR2Colors.Tier1ItemDark}>Opened</color>";
+
+            string message = $"<color={RoR2Colors.Tier1ItemDark}>{displayName}: {reward}";
             return message;
         }
 
@@ -22,6 +24,17 @@ namespace InfoOnPing
             string displayName = $"{PI.GetDisplayName()}";
             string cost = PI.GetTextFromPurchasableType();
             string costColor = PI.GetColorFromPurchasableType();
+
+            if (PI.InteractableIsUsedUp())
+            {
+                if (PI.IsContainer())
+                    cost = "Opened";
+                else if (PI.IsShrine())
+                    cost = "Used";
+                else
+                    cost = "Unavailable";
+                costColor = RoR2Colors.Tier1ItemDark;
+            }
             string message = $"<color={RoR2Colors.Tier1ItemDark}>{displayName}:</color> <color={costColor}>{cost}</color>";
             return message;
         }
@@ -69,9 +82,11 @@ namespace InfoOnPing
             PickupIndex pickupIdx = STB.CurrentPickupIndex();
             PurchaseInteraction PI = STB.GetComponent<PurchaseInteraction>();
             string cost = $"<color={PI.GetColorFromPurchasableType()}>{PI.GetTextFromPurchasableType()}</color>";
+            string tierColor = $"#{ColorUtility.ToHtmlStringRGB(pickupIdx.GetPickupColor())}";
+            string tierColorDark = $"#{ColorUtility.ToHtmlStringRGB(pickupIdx.GetPickupColorDark())}";
             if (STB.pickupIndexIsHidden)
             {
-                string message = $"<color={RoR2Colors.Unlockable}>??? ({cost}): <color={RoR2Colors.Unlockable}>???</color>";
+                string message = $"<color={tierColor}>??? ({cost}): <color={tierColorDark}>???</color>";
                 return message;
             }
             return ItemMessage(pickupIdx, cost);
@@ -80,7 +95,14 @@ namespace InfoOnPing
         public static string CharacterMessage(CharacterBody CB)
         {
             CharacterMaster CM = CB.master;
-            string message = $"{CB.GetDisplayName()}: HP {CB.healthComponent.combinedHealth}\\{CB.healthComponent.fullCombinedHealth}";
+            float cbHealth = CB.healthComponent.combinedHealth;
+            float cbHealthMax = CB.healthComponent.fullCombinedHealth;
+            string nameColor = $"{(CB.teamComponent.teamIndex == TeamIndex.Player ? RoR2Colors.EasyDifficulty : RoR2Colors.HardDifficulty)}";
+            string healthColor = $"{RoR2Colors.Tier1ItemDark}";
+            string displayName = $"{CB.GetDisplayName()}";
+            string displayHP = $"HP <color=#{ColorExtensions.InterpolatedHealthColor(cbHealth, cbHealthMax)}>{CB.healthComponent.combinedHealth.ToString("n1")}<color={RoR2Colors.Tier1ItemDark}>\\{CB.healthComponent.fullCombinedHealth.ToString("n1")}";
+
+            string message = $"<color={nameColor}>{displayName}:</color> <color={healthColor}>{displayHP}</color>";
             return message;
         }
 

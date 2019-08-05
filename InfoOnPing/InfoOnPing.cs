@@ -33,13 +33,8 @@ namespace UnosMods.InfoOnPing
                         BarrelInteraction BI = target.GetComponent<BarrelInteraction>(); // Barrel Interactable info
                         PurchaseInteraction PI = target.GetComponent<PurchaseInteraction>(); // Purchase Interactable info
                         GenericPickupController GPC = target.GetComponent<GenericPickupController>(); // Generic item pickup
-                        CharacterBody CB = target.GetComponent<CharacterBody>(); // Character
 
-                        if (CB) // If object is a CharacterBody
-                        {
-                            Chat.AddMessage(ExtPingMessages.CharacterMessage(CB));
-                        }
-                        else if (BI)
+                        if (BI)
                         {
                             Chat.AddMessage(ExtPingMessages.BarrelMessage(BI));        // Send chat message with name and rewards (gold, exp). Also shows exp needed for next level.
                             Chat.AddMessage(ExtPingMessages.ExpMessage());
@@ -58,6 +53,16 @@ namespace UnosMods.InfoOnPing
                                 Chat.AddMessage(ExtPingMessages.ItemMessage(pickupIdx));        // Send chat message with item name and description.
                             else if (pickupIdx.equipmentIndex != EquipmentIndex.None)
                                 Chat.AddMessage(ExtPingMessages.EquipmentMessage(pickupIdx));   // Send chat message with equipment name and description.
+                        }
+                    }
+                    else if (self.GetFieldValue<RoR2.UI.PingIndicator.PingType>("pingType") == RoR2.UI.PingIndicator.PingType.Enemy) // If object is an enemy
+                    {
+                        GameObject target = self.pingTarget;
+                        CharacterBody CB = target.GetComponent<CharacterBody>();
+                        
+                        if (CB)
+                        {
+                            Chat.AddMessage(ExtPingMessages.CharacterMessage(CB));
                         }
                     }
                 }

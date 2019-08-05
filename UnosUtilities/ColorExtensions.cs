@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
@@ -11,10 +12,11 @@ namespace UnosUtilities
         /// </summary>
         /// <param name="hex">The hexadecimal color (ex: #FF0000) to convert.</param>
         /// <returns>Returns <c>UnityEngine.Color</c></returns>
+        [Obsolete("This function is broken and has a better equivalent: ColorUtility.TryParseRGBFromHtml", true)]
         public static Color HexToRGB(this string hex)
         {
             System.Drawing.Color parsedHex = System.Drawing.Color.FromArgb(int.Parse(hex.Replace("#", ""), NumberStyles.AllowHexSpecifier));
-            return new Color(parsedHex.R, parsedHex.G, parsedHex.B, 255);
+            return new Color(parsedHex.R, parsedHex.G, parsedHex.B);
         }
 
         /// <summary>
@@ -52,6 +54,16 @@ namespace UnosUtilities
             }
 
             return hexRGB;
+        }
+
+        public static string InterpolatedHealthColor(float minVal, float maxVal)
+        {
+            Color minColor;
+            Color maxColor;
+            ColorUtility.TryParseHtmlString(RoR2Colors.Tier3Item, out minColor);
+            ColorUtility.TryParseHtmlString(RoR2Colors.Tier2Item, out maxColor);
+            Color interpColor = Color.Lerp(minColor, maxColor, minVal / maxVal);
+            return ColorUtility.ToHtmlStringRGB(interpColor);
         }
     }
 }

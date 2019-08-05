@@ -18,6 +18,7 @@ namespace UnosMods.DebugCheats
         List<PickupIndex> tier2Drops = new List<PickupIndex>();
         List<PickupIndex> tier3Drops = new List<PickupIndex>();
         List<PickupIndex> allDrops = new List<PickupIndex>();
+        bool givenMoney = false;
 
         public void Update()
         {
@@ -32,6 +33,11 @@ namespace UnosMods.DebugCheats
                 }
                 else if (Run.instance.participatingPlayerCount == 1)
                 {
+                    if (!givenMoney)
+                    {
+                        PlayerCharacterMasterController.instances[0].master.GiveMoney(100000);
+                        givenMoney = true;
+                    }
                     if (Input.GetKeyDown(KeyCode.F1))
                     {
                         var inv = PlayerCharacterMasterController.instances[0].master.inventory;
@@ -50,6 +56,10 @@ namespace UnosMods.DebugCheats
                     {
                         var transform = PlayerCharacterMasterController.instances[0].master.GetBodyObject().transform;
                         PickupDropletController.CreatePickupDroplet(GetRandomDropFromList(allDrops), transform.position, transform.forward * 20f);
+                    }
+                    if (Input.GetKey(KeyCode.F4))
+                    {
+                        PlayerCharacterMasterController.instances[0].master.GiveMoney(100);
                     }
                 }
             }
