@@ -7,24 +7,14 @@ namespace UnosUtilities
     public static class ColorExtensions
     {
         /// <summary>
-        /// Takes a <c>Color32</c> and turns it into a hex color.
-        /// </summary>
-        /// <param name="rgb">The <c>Color32</c> to convert.</param>
-        /// <returns>Returns a string containing a hexadecimal color (ex: #FF0000)</returns>
-        public static string RGBToHex(this Color32 rgb)
-        {
-            return string.Format(CultureInfo.InvariantCulture, "{0:X2}{1:X2}{2:X2}", rgb.r, rgb.g, rgb.b);
-        }
-
-        /// <summary>
-        /// Takes a hex color and turns it into a <c>Color32</c>.
+        /// Takes a hex color and turns it into a Color.
         /// </summary>
         /// <param name="hex">The hexadecimal color (ex: #FF0000) to convert.</param>
-        /// <returns>Returns <c>UnityEngine.Color32</c></returns>
-        public static Color32 HexToRGB(this string hex)
+        /// <returns>Returns <c>UnityEngine.Color</c></returns>
+        public static Color HexToRGB(this string hex)
         {
             System.Drawing.Color parsedHex = System.Drawing.Color.FromArgb(int.Parse(hex.Replace("#", ""), NumberStyles.AllowHexSpecifier));
-            return new Color32(parsedHex.R, parsedHex.G, parsedHex.B, 255);
+            return new Color(parsedHex.R, parsedHex.G, parsedHex.B, 255);
         }
 
         /// <summary>

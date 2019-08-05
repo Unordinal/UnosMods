@@ -2,6 +2,7 @@
 using System.Reflection;
 using BepInEx;
 using BepInEx.Configuration;
+using InfoOnPing;
 using R2API.Utils;
 using RoR2;
 using UnityEngine;
@@ -14,7 +15,7 @@ namespace UnosMods.InfoOnPing
 
     public class InfoOnPing : BaseUnityPlugin
     {
-        private static ConfigWrapper<bool> UseLongDescription;
+        public static ConfigWrapper<bool> UseLongDescription;
         public void Awake()
         {
             UseLongDescription = Config.Wrap("InfoOnPing", "UseLongDescription", "Whether to show the long description in chat when a pickup is pinged.", false);
@@ -26,34 +27,37 @@ namespace UnosMods.InfoOnPing
                 orig(self);
                 try
                 {
-                    if (self.GetFieldValue<RoR2.UI.PingIndicator.PingType>("pingType") == RoR2.UI.PingIndicator.PingType.Interactable) // Object is an interactable
+                    if (self.GetFieldValue<RoR2.UI.PingIndicator.PingType>("pingType") == RoR2.UI.PingIndicator.PingType.Interactable) // If object is an interactable
                     {
-                        PurchaseInteraction PI = self.pingTarget.GetComponent<PurchaseInteraction>(); // Purchase Interactable info
-                        GenericPickupController GPC = self.pingTarget.GetComponent<GenericPickupController>(); // Generic item pickup
+                        GameObject target = self.pingTarget;
+                        BarrelInteraction BI = target.GetComponent<BarrelInteraction>(); // Barrel Interactable info
+                        PurchaseInteraction PI = target.GetComponent<PurchaseInteraction>(); // Purchase Interactable info
+                        GenericPickupController GPC = target.GetComponent<GenericPickupController>(); // Generic item pickup
+                        CharacterBody CB = target.GetComponent<CharacterBody>(); // Character
 
-                        if (PI && PI.costType != CostTypeIndex.None) // Object is purchasable and has a valid cost type
+                        if (CB) // If object is a CharacterBody
                         {
-                            string displayName = $"{PI.GetDisplayName()}";
-                            string cost = PI.GetTextFromPurchasableType();
-                            string costColor = PI.GetColorFromPurchasableType();
-                            string message = $"<color={RoR2Colors.Tier1ItemDark}>{displayName}:</color> <color={costColor}>{cost}</color>";
-                            Chat.AddMessage(message); // Send a chat message with name and price info (ex: Chest: $22, Shrine of Blood: 50% HP, etc)
+                            Chat.AddMessage(ExtPingMessages.CharacterMessage(CB));
                         }
-                        else if (GPC) // Object is a pickup
+                        else if (BI)
                         {
-                            string displayName = $"{GPC.GetDisplayName()}";
-                            string description;
-
-                            PickupIndex pickupIdx = GPC.pickupIndex;
-                            ItemIndex itemIdx = pickupIdx.itemIndex;
-                            ItemDef itemDef = ItemCatalog.GetItemDef(itemIdx);
-
-                            if (itemDef.descriptionToken != null && UseLongDescription.Value) // Config is set to show long description and object has valid long description
-                                description = itemDef.descriptionToken;
+                            Chat.AddMessage(ExtPingMessages.BarrelMessage(BI));        // Send chat message with name and rewards (gold, exp). Also shows exp needed for next level.
+                            Chat.AddMessage(ExtPingMessages.ExpMessage());
+                        }
+                        else if (PI && PI.costType != CostTypeIndex.None) // If object is purchasable and has a valid cost type
+                        {
+                            if (PI.GetComponent<ShopTerminalBehavior>()) // If object is a shop terminal, don't use normal purchasable behavior.
+                                Chat.AddMessage(ExtPingMessages.ShopTerminalMessage(PI.GetComponent<ShopTerminalBehavior>())); // Send chat message with shown pickup name, cost and description
                             else
-                                description = itemDef.pickupToken ?? itemDef.descriptionToken;
-
-                            string message = $"<color={RoR2Colors.Tier1ItemDark}>{displayName}: {description}</color>";
+                                Chat.AddMessage(ExtPingMessages.PurchasableMessage(PI));   // Send chat message with name and price info (ex: Chest: $22, Shrine of Blood: 50% HP, etc).
+                        }
+                        else if (GPC) // If object is a pickup
+                        {
+                            PickupIndex pickupIdx = GPC.pickupIndex;
+                            if (pickupIdx.itemIndex != ItemIndex.None)
+                                Chat.AddMessage(ExtPingMessages.ItemMessage(pickupIdx));        // Send chat message with item name and description.
+                            else if (pickupIdx.equipmentIndex != EquipmentIndex.None)
+                                Chat.AddMessage(ExtPingMessages.EquipmentMessage(pickupIdx));   // Send chat message with equipment name and description.
                         }
                     }
                 }

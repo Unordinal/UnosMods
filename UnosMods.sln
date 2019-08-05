@@ -10,6 +10,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnosUtilities", "UnosUtilities\UnosUtilities.csproj", "{4821641A-8889-4642-BA7E-2B2458E06E21}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InfoOnPing", "InfoOnPing\InfoOnPing.csproj", "{743F0BF8-3023-4185-8C72-E839139B2891}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4821641A-8889-4642-BA7E-2B2458E06E21} = {4821641A-8889-4642-BA7E-2B2458E06E21}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

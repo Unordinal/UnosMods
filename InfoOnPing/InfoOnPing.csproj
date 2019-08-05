@@ -9,9 +9,7 @@
     <None Remove="UnosUtilities.dll" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="UnosUtilities.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
+    <EmbeddedResource Include="UnosUtilities.dll" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
