@@ -24,6 +24,7 @@ namespace UnosMods.BossTeleportPercent
                 25f);
             On.RoR2.BossGroup.OnDefeatedServer += (orig, self) =>
             {
+                orig(self);
                 if (RoR2.TeleporterInteraction.instance.isCharging)
                 {
                     if (RoR2.TeleporterInteraction.instance.remainingChargeTimer - (constrainedPercent * 0.9f) <= 0f)
