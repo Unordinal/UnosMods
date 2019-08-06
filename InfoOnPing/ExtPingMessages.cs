@@ -92,18 +92,36 @@ namespace InfoOnPing
             return ItemMessage(pickupIdx, cost);
         }
 
-        public static string CharacterMessage(CharacterBody CB)
+        public static string CharacterHeaderMessage(CharacterBody CB)
         {
             CharacterMaster CM = CB.master;
+            string nameColor = $"{(CB.teamComponent.teamIndex == TeamIndex.Player ? RoR2Colors.EasyDifficulty : RoR2Colors.HardDifficulty)}";
+            string displayName = $"{CB.GetDisplayName()}";
+            string level = $"{CB.level}";
+            
+            string message = $"<color={nameColor}>{displayName} (lv. {level}):</color>";
+            return message;
+        }
+
+        public static string CharacterHealthStatsMessage(CharacterBody CB)
+        {
             float cbHealth = CB.healthComponent.combinedHealth;
             float cbHealthMax = CB.healthComponent.fullCombinedHealth;
-            string nameColor = $"{(CB.teamComponent.teamIndex == TeamIndex.Player ? RoR2Colors.EasyDifficulty : RoR2Colors.HardDifficulty)}";
             string healthColor = $"{RoR2Colors.Tier1ItemDark}";
-            string displayName = $"{CB.GetDisplayName()}";
-            string displayHP = $"HP <color=#{ColorExtensions.InterpolatedHealthColor(cbHealth, cbHealthMax)}>{CB.healthComponent.combinedHealth.ToString("n1")}<color={RoR2Colors.Tier1ItemDark}>\\{CB.healthComponent.fullCombinedHealth.ToString("n1")}";
+            string hpStats = $"<color={healthColor}>HP: <color=#{ColorExtensions.InterpolatedHealthColor(cbHealth, cbHealthMax)}>{CB.healthComponent.combinedHealth.ToString("n1")}</color>\\{CB.healthComponent.fullCombinedHealth.ToString("n1")}";
 
-            string message = $"<color={nameColor}>{displayName}:</color> <color={healthColor}>{displayHP}</color>";
-            return message;
+            return hpStats;
+        }
+
+        public static string CharacterDamageStatsMessage(CharacterBody CB)
+        {
+            float cbDamage = CB.damage;
+            //float cbAtkSpd = Mathf.Max(CB.attackSpeed, 0.01f);
+            //float cbDPS = cbDamage * cbAtkSpd;
+            //string dmgStats = $"<color={RoR2Colors.Tier1ItemDark}>DPS: {cbDPS.ToString("n1")} (DMG: {cbDamage}, SPD: {cbAtkSpd})";
+            string dmgStats = $"<color={RoR2Colors.Tier1ItemDark}>Damage: {cbDamage}</color>";
+
+            return dmgStats;
         }
 
         public static string ExpMessage()

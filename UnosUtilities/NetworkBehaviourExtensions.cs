@@ -41,6 +41,11 @@ namespace UnosUtilities
                 NB.GetComponent<ShrineRestackBehavior>();
         }
 
+        /// <summary>
+        /// Checks whether the NetworkBehaviour is a Shrine that has been completely used up.
+        /// </summary>
+        /// <param name="NB">The NetworkBehaviour to check.</param>
+        /// <returns></returns>
         public static bool IsShrineUsedUp(this NetworkBehaviour NB)
         {
             if (NB.IsShrine()) // Since purchaseCount is private, we'll do it your way...

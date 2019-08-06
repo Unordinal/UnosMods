@@ -11,7 +11,7 @@ using UnosUtilities;
 namespace UnosMods.InfoOnPing
 {
     [BepInDependency("com.bepis.r2api")]
-    [BepInPlugin("com.unordinal.infoonping", "Info On Ping", "1.0.0")]
+    [BepInPlugin("com.unordinal.infoonping", "Info On Ping", "1.1.0")]
 
     public class InfoOnPing : BaseUnityPlugin
     {
@@ -55,14 +55,16 @@ namespace UnosMods.InfoOnPing
                                 Chat.AddMessage(ExtPingMessages.EquipmentMessage(pickupIdx));   // Send chat message with equipment name and description.
                         }
                     }
-                    else if (self.GetFieldValue<RoR2.UI.PingIndicator.PingType>("pingType") == RoR2.UI.PingIndicator.PingType.Enemy) // If object is an enemy
+                    else if (self.GetFieldValue<RoR2.UI.PingIndicator.PingType>("pingType") == RoR2.UI.PingIndicator.PingType.Enemy) // If object is an enemy/character
                     {
                         GameObject target = self.pingTarget;
                         CharacterBody CB = target.GetComponent<CharacterBody>();
                         
                         if (CB)
                         {
-                            Chat.AddMessage(ExtPingMessages.CharacterMessage(CB));
+                            Chat.AddMessage(ExtPingMessages.CharacterHeaderMessage(CB));
+                            Chat.AddMessage(ExtPingMessages.CharacterHealthStatsMessage(CB));
+                            Chat.AddMessage(ExtPingMessages.CharacterDamageStatsMessage(CB));
                         }
                     }
                 }
