@@ -21,6 +21,7 @@ namespace UnosMods.DebugCheats
         List<PickupIndex> allDrops = new List<PickupIndex>();
         List<PickupIndex> equipmentDrops = new List<PickupIndex>();
         bool givenMoney = false;
+        bool godMode = false;
 
         public void Update()
         {
@@ -43,6 +44,13 @@ namespace UnosMods.DebugCheats
                     {
                         player.master.GiveMoney(100000);
                         givenMoney = true;
+                    }
+                    if (Input.GetKeyDown(KeyCode.Alpha0))
+                    {
+                        godMode = !godMode;
+                        foreach (var netPlayer in NetworkUser.readOnlyInstancesList)
+                            netPlayer.GetCurrentBody().healthComponent.godMode = godMode;
+                        Chat.AddMessage($"Godmode {godMode}");
                     }
                     if (Input.GetKeyDown(KeyCode.F1))
                     {
@@ -85,5 +93,21 @@ namespace UnosMods.DebugCheats
             else
                 return allDrops[Run.instance.treasureRng.RangeInt(0, allDrops.Count)];
         }
+
+        /*[ConCommand(commandName = "list_components", 
+            flags = ConVarFlags.ExecuteOnServer, 
+            helpText = "List components of the object under your crosshairs. Add an index to list components of the component whose index is entered. Can enter multiple, dot-separated indices, ex: 0.2.1")]
+        private static void CCListComponents(ConCommandArgs args)
+        {
+            CharacterBody body = args.sender.master?.GetBody();
+            if (!body)
+                return;
+            HurtBox hurtBox = null;
+            RaycastHit raycastHit;
+            if (Util.CharacterRaycast(body, aimRay, out raycastHit, 1000f, LayerIndex.world.mask | LayerIndex.defaultLayer.mask, QueryTriggerInteraction.Collide))
+            {
+                hurtBox = raycastHit.collider.GetComponent<HurtBox>();
+            }
+        }*/
     }
 }

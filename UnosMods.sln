@@ -18,6 +18,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StartingItemsPicker", "Star
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DropItems", "DropItems\DropItems.csproj", "{926F1C2C-8887-4F2C-A109-393AE2BBBE62}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToolbotEquipmentSwap", "ToolbotEquipmentSwap\ToolbotEquipmentSwap.csproj", "{3E90B2F8-B961-4DD6-9175-B7591548B3F3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,6 +50,10 @@ Global
 		{926F1C2C-8887-4F2C-A109-393AE2BBBE62}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{926F1C2C-8887-4F2C-A109-393AE2BBBE62}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{926F1C2C-8887-4F2C-A109-393AE2BBBE62}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E90B2F8-B961-4DD6-9175-B7591548B3F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E90B2F8-B961-4DD6-9175-B7591548B3F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E90B2F8-B961-4DD6-9175-B7591548B3F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E90B2F8-B961-4DD6-9175-B7591548B3F3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

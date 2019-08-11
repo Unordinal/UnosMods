@@ -2,11 +2,11 @@
 
 namespace UnosMods.ToolbotEquipmentSwap
 {
-    public class DropItemsMessage : MessageBase
+    public class ToolbotEquipmentSwapMessage : MessageBase
     {
         private string message;
 
-        public DropItemsMessage(string msgIn = "DropItemsMessage")
+        public ToolbotEquipmentSwapMessage(string msgIn = "ToolbotEquipmentSwapMessage")
         {
             message = msgIn;
         }

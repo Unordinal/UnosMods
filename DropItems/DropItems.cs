@@ -10,7 +10,7 @@ using BepInEx;
 using BepInEx.Configuration;
 using MiniRpcLib;
 
-namespace UnosMods.DropItems
+namespace UnosMods.ToolbotEquipmentSwap
 {
     [BepInDependency(R2API.R2API.PluginGUID)]
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
@@ -41,7 +41,7 @@ namespace UnosMods.DropItems
 
         public void Update()
         {
-            if (dropItemKey != null && Input.GetKeyDown(dropItemKey.Value))
+            if (Run.instance && dropItemKey != null && Input.GetKeyDown(dropItemKey.Value))
                 DropLastItem();
         }
 
@@ -77,7 +77,7 @@ namespace UnosMods.DropItems
 
             if (inv == null || !LastPickedUpItem.ContainsKey(inv) || LastPickedUpItem[inv] == PickupIndex.none || !inv.itemAcquisitionOrder.Any())
             {
-                Logger.LogError($"Received item drop request from host '{player.networkUser?.userName}' but they cannot drop an item right now.");
+                Logger.LogWarning($"Received item drop request from host '{player.networkUser?.userName}' but they cannot drop an item right now.");
                 return;
             }
 
@@ -106,7 +106,7 @@ namespace UnosMods.DropItems
             var inv = master.inventory;
             if (inv == null || !LastPickedUpItem.ContainsKey(inv) || LastPickedUpItem[inv] == PickupIndex.none || !inv.itemAcquisitionOrder.Any())
             {
-                Logger.LogError($"Received item drop request from client '{user.userName}' but they cannot drop an item right now.");
+                Logger.LogWarning($"Received item drop request from client '{user.userName}' but they cannot drop an item right now.");
                 return;
             }
 
