@@ -8,7 +8,8 @@ Lets people playing as MUL-T swap their equipment with a dedicated key. It also 
 ## Configuration
 1. Install the plugin.
 2. Run the game and a configuration file will be generated at `Risk of Rain 2\BepInEx\config`
-3. Open `com.unordinal.toolbotequipmentswap.cfg` and edit the settings to your preference.
+3. Open `com.unordinal.toolbotequipmentswap.cfg` with any text editor.
+4. Edit the settings to your preference.
 
 ### Options
 *Server-side options apply to everyone in the server based on the host's config file setting.*
