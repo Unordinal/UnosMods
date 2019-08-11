@@ -9,3 +9,6 @@ Shows information about the pinged object in chat.
 - Multi-shops show the item, item cost and description of the item.
 - Characters show the character's health and max health as well as their damage.
 - Interactable cost will be replaced with Opened/Used if they were used up or opened.
+
+## Configuration
+UseLongDescription: Whether to show the long description in chat when a pickup is pinged. *(Default: false)*
