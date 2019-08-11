@@ -1,5 +1,6 @@
 # UnosRoR2Mods
 ## Mods
+***Downloads of any released mods are available at https://thunderstore.io/package/Unordinal/***
 ### InfoOnPing
 Shows information about the pinged object in chat.
 ### BossTeleportPercent
