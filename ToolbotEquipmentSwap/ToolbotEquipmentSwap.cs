@@ -115,7 +115,7 @@ namespace UnosMods.StartingItemsPicker
         public bool SwitchEquipmentSlots(Inventory inv)
         {
             var body = inv.GetComponentInParent<PlayerCharacterMasterController>()?.master?.GetBody();
-            if (!inv || !body || !BodyIsToolbot(body))
+            if (!inv || !body || !BodyIsSurvivorIndex(body, SurvivorIndex.Toolbot))
             {
                 Logger.LogWarning($"SwitchEquipmentSlots was called on an invalid character. ({(inv ? (body ? "Character is not MUL-T." : "Body is null.") : "Inventory is null.")})");
                 return false;
@@ -128,15 +128,15 @@ namespace UnosMods.StartingItemsPicker
             return true;
         }
 
-        public bool BodyIsToolbot(CharacterBody body)
+        public bool BodyIsSurvivorIndex(CharacterBody body, SurvivorIndex index)
         {
             var bodyPrefab = body?.master?.bodyPrefab;
             if (!bodyPrefab)
             {
-                Logger.LogWarning($"Body passed to BodyIsToolbot is invalid. ({(body ? "bodyPrefab is null." : "Body is null.")})");
+                Logger.LogWarning($"Body passed to BodyIsSurvivorIndex is invalid. ({(body ? "bodyPrefab is null." : "Body is null.")})");
                 return false;
             }
-            return SurvivorCatalog.FindSurvivorDefFromBody(bodyPrefab)?.survivorIndex == SurvivorIndex.Toolbot;
+            return SurvivorCatalog.FindSurvivorDefFromBody(bodyPrefab)?.survivorIndex == index;
         }
 
         public KeyCode? GetKey(ConfigWrapper<string> param)
