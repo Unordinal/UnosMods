@@ -9,6 +9,7 @@ using MonoMod.Cil;
 namespace UnosMods.ToolbotEquipmentSwap
 {
     [BepInDependency(R2API.R2API.PluginGUID)]
+    [BepInDependency(MiniRpcLib.MiniRpcPlugin.Dependency)]
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     public class ToolbotEquipmentSwap : BaseUnityPlugin
     {
