@@ -3,20 +3,16 @@ using RoR2;
 using BepInEx;
 using BepInEx.Configuration;
 using UnityEngine;
-using UnosMods.ToolbotEquipmentSwap;
 using UnityEngine.Networking;
 using MonoMod.Cil;
-using Mono.Cecil;
-using Mono.Cecil.Cil;
-using System.Reflection;
 
-namespace UnosMods.StartingItemsPicker
+namespace UnosMods.ToolbotEquipmentSwap
 {
     [BepInDependency(R2API.R2API.PluginGUID)]
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     public class ToolbotEquipmentSwap : BaseUnityPlugin
     {
-        public const string PluginName = "MUL-T Equipment Swap";
+        public const string PluginName = "ToolbotEquipmentSwap";
         public const string PluginGUID = "com.unordinal.toolbotequipmentswap";
         public const string PluginVersion = "1.0.0";
         private const string PluginRpcGUID = "UnosMods.ToolbotEquipmentSwap";
