@@ -23,16 +23,6 @@ namespace UnosMods.DebugCheats
         bool givenMoney = false;
         bool godMode = false;
 
-        public DebugCheats()
-        {
-            On.RoR2.RoR2Application.UnitySystemConsoleRedirector.Redirect += orig => { }; // Stop in-game console from redirecting from base cmd console.
-            On.RoR2.Console.Awake += (orig, self) =>
-            {
-                CommandHelper.RegisterCommands(self);
-                orig(self);
-            };
-        }
-
         public void Update()
         {
             if (Run.instance)
@@ -102,57 +92,6 @@ namespace UnosMods.DebugCheats
                 return list[Run.instance.treasureRng.RangeInt(0, list.Count)];
             else
                 return allDrops[Run.instance.treasureRng.RangeInt(0, allDrops.Count)];
-        }
-
-        [ConCommand(commandName = "dc_loadscene", flags = ConVarFlags.ExecuteOnServer, helpText = "Loads the specified scene.\n\t[0]: sceneName")]
-        public static void CCLoadScene(ConCommandArgs args)
-        {
-            if (args.Count == 0)
-                return;
-
-            string sceneName = args[0];
-            try
-            {
-                if (!SceneCatalog.allSceneDefs.Contains(SceneCatalog.GetSceneDefFromSceneName(sceneName)))
-                    throw new Exception();
-                Run.instance.AdvanceStage(sceneName);
-            }
-            catch
-            {
-                Debug.LogError($"Invalid scene name '{sceneName}'");
-            }
-        }
-
-        [ConCommand(commandName = "dc_listscenes", flags = ConVarFlags.None, helpText = "Lists valid scenes.\n\t[0]: bool includeInvalid: Lists all scenes if true.")]
-        public static void CCListScenes(ConCommandArgs args)
-        {
-            try
-            {
-                bool includeInvalid = false;
-                if (args.Count > 0)
-                    bool.TryParse(args[0], out includeInvalid);
-
-                var sceneNamePadding = SceneCatalog.allSceneDefs.Aggregate((max, cur) => max.sceneName.Length > cur.sceneName.Length ? max : cur).sceneName.Length + 2;
-                var nameTokenPadding = Language.GetString(SceneCatalog.allSceneDefs.Aggregate((max, cur) => Language.GetString(max.nameToken).Length > Language.GetString(cur.nameToken).Length ? max : cur).nameToken).Length + 2; // this is a mess of a line, ey?
-                /*string codeNameHeader = PadBoth("Code name", sceneNamePadding);
-                string sceneTitleHeader = PadBoth("Scene title", nameTokenPadding);*/ // Not monospace console lulllllll bleh
-
-                Debug.Log("Code name: Scene title");
-                Debug.Log(new string('-', sceneNamePadding + nameTokenPadding));
-                foreach (var scene in SceneCatalog.allSceneDefs.Where(x => includeInvalid || (x.sceneType == SceneType.Stage || x.sceneType == SceneType.Intermission)))
-                    Debug.Log($"{scene.sceneName}: {(!Language.GetString(scene.nameToken).IsNullOrWhiteSpace() ? Language.GetString(scene.nameToken) : scene.sceneName)}");
-            }
-            catch (Exception exc)
-            {
-                Debug.LogError($"{exc}");
-            }
-        }
-
-        public static string PadBoth(string source, int length) //https://stackoverflow.com/a/17590723/
-        {
-            int spaces = length - source.Length;
-            int padLeft = spaces / 2 + source.Length;
-            return source.PadLeft(padLeft).PadRight(length);
         }
 
         /*[ConCommand(commandName = "list_components", 
