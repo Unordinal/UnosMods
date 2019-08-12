@@ -41,7 +41,7 @@ namespace UnosMods.ToolbotEquipmentSwap
 
         public void Update()
         {
-            if (Run.instance && dropItemKey != null && Input.GetKeyDown(dropItemKey.Value))
+            if (Run.instance && Stage.instance && dropItemKey != null && Input.GetKeyDown(dropItemKey.Value))
                 DropLastItem();
         }
 
