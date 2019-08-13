@@ -2,9 +2,16 @@
 using RoR2;
 using BepInEx;
 using BepInEx.Configuration;
+using MiniRpcLib.Action;
+using MiniRpcLib.Func;
 using UnityEngine;
 using UnityEngine.Networking;
 using MonoMod.Cil;
+using Mono.Cecil.Cil;
+using R2API.Utils;
+using System.Collections.Generic;
+using EntityStates.Toolbot;
+using System.Linq;
 
 namespace UnosMods.ToolbotEquipmentSwap
 {
@@ -18,10 +25,14 @@ namespace UnosMods.ToolbotEquipmentSwap
         public const string PluginVersion = "1.0.0";
         private const string PluginRpcGUID = "UnosMods.ToolbotEquipmentSwap";
 
-        private MiniRpcLib.Action.IRpcAction<ToolbotEquipmentSwapMessage> CmdSwitchEquipmentSlots;
+        public IRpcAction<ToolbotEquipmentSwapMessage> CmdSwitchEquipmentSlots;
+        public IRpcFunc<string, bool> GetClientAutoSwapConfig { get; set; }
+
         public static ConfigWrapper<string> equipSwapKeyString;
         public static ConfigWrapper<bool> stopAutoSwap;
         public static KeyCode? equipSwapKey;
+
+        public static Dictionary<NetworkUser, bool> usersAutoSwap = new Dictionary<NetworkUser, bool>();
 
         internal void Awake()
         {
@@ -34,46 +45,94 @@ namespace UnosMods.ToolbotEquipmentSwap
 
             var miniRpc = MiniRpcLib.MiniRpc.CreateInstance(PluginRpcGUID);
             CmdSwitchEquipmentSlots = miniRpc.RegisterAction(MiniRpcLib.Target.Server, (Action<NetworkUser, ToolbotEquipmentSwapMessage>)DoSwitchEquipmentSlots);
+            GetClientAutoSwapConfig = miniRpc.RegisterFunc<string, bool>(MiniRpcLib.Target.Client, ClientSendAutoSwapConfigValue);
 
-            // Do IL replacement to stop automatic equipment slot swapping if true in config
-            if (stopAutoSwap?.Value ?? true)
-            {
-                Logger.LogInfo("StopAutoSwap is true, modifying Toolbot Stances OnEnter()");
-                IL.EntityStates.Toolbot.ToolbotStanceA.OnEnter += ToolbotStanceA_OnEnter;
-                IL.EntityStates.Toolbot.ToolbotStanceB.OnEnter += ToolbotStanceB_OnEnter;
-            }
+            // Do IL replacement to stop automatic equipment slot swapping if wanted
+            Logger.LogInfo("Modifying Toolbot Stances OnEnter()");
+            IL.EntityStates.Toolbot.ToolbotStanceA.OnEnter += ToolbotStanceA_OnEnter;
+            IL.EntityStates.Toolbot.ToolbotStanceB.OnEnter += ToolbotStanceB_OnEnter;
         }
 
-        private void ToolbotStanceA_OnEnter(ILContext il)
+        public void ToolbotStanceA_OnEnter(ILContext il)
         {
-            var c = new ILCursor(il);
-            c.GotoNext(
-                x => x.MatchCall<NetworkServer>("get_active"),                                  // NetworkServer.active
-                x => x.MatchBrfalse(out _),                                                     // break if above is false
-                x => x.MatchLdarg(0),                                                           // Argument 0 (OnEnter method itself)
-                x => x.MatchLdcI4(0),                                                           // 0 (byte, Equipment slot)
-                x => x.MatchCall<EntityStates.Toolbot.ToolbotStanceBase>("SetEquipmentSlot")    // SetEquipmentSlot((byte)LdcI4.0)
-                );
-            Logger.LogDebug(c);
-            c.RemoveRange(5);
-            Logger.LogDebug(c);
-            Logger.LogInfo("Modified ToolbotStanceA.OnEnter()");
+            try
+            {
+                var c = new ILCursor(il);
+                c.GotoNext(
+                    x => x.MatchCall<NetworkServer>("get_active"),                                  // NetworkServer.active
+                    x => x.MatchBrfalse(out _),                                                     // break if above is false
+                    x => x.MatchLdarg(0),                                                           // Argument 0 (OnEnter method itself)
+                    x => x.MatchLdcI4(0),                                                           // 0 (byte, Equipment slot)
+                    x => x.MatchCall<ToolbotStanceBase>("SetEquipmentSlot")    // SetEquipmentSlot((byte)LdcI4.0)
+                    );
+                c.Index += 2;                                                                       // Next = IL_0039: ldarg.0
+                Logger.LogDebug(c);
+                c.RemoveRange(3);
+                c.Emit(OpCodes.Ldarg_0);
+                c.EmitDelegate<Action<ToolbotStanceBase>> ((stance) =>
+                {
+                    NetworkUser user = stance.GetFieldValue<Inventory>("inventory")?.GetComponentInParent<PlayerCharacterMasterController>()?.networkUser;
+                    if (user)
+                    {
+                        GetClientAutoSwapConfig.Invoke(null, result =>
+                        {
+                            bool stopAutoSwap = result;
+                            Logger.LogDebug($"Invoke result [{user.userName}]: {result}");
+                            if (!stopAutoSwap)
+                                stance.InvokeMethod("SetEquipmentSlot", (byte)0);
+                        }, user);
+                    }
+                });
+                Logger.LogDebug(c);
+                Logger.LogDebug(il.ToString());
+                Logger.LogInfo("Modified ToolbotStanceA.OnEnter()");
+            }
+            catch (Exception e)
+            {
+                Logger.LogError($"There was an error modifying ToolbotStanceA.OnEnter():\n{e}");
+            }
         }
 
         private void ToolbotStanceB_OnEnter(ILContext il)
         {
-            var c = new ILCursor(il);
-            c.GotoNext(
-                x => x.MatchCall<NetworkServer>("get_active"),                                  // NetworkServer.active
-                x => x.MatchBrfalse(out _),                                                     // break if above is false
-                x => x.MatchLdarg(0),                                                           // Argument 0 (OnEnter method itself)
-                x => x.MatchLdcI4(1),                                                           // 1 (byte, Equipment slot)
-                x => x.MatchCall<EntityStates.Toolbot.ToolbotStanceBase>("SetEquipmentSlot")    // SetEquipmentSlot((byte)LdcI4.1)
-                );
-            Logger.LogDebug(c);
-            c.RemoveRange(5);
-            Logger.LogDebug(c);
-            Logger.LogInfo("Modified ToolbotStanceB.OnEnter()");
+            try
+            {
+                /*var c = new ILCursor(il);
+                c.GotoNext(
+                    x => x.MatchCall<NetworkServer>("get_active"),                                  // NetworkServer.active
+                    x => x.MatchBrfalse(out _),                                                     // break if above is false
+                    x => x.MatchLdarg(0),                                                           // Argument 0 (OnEnter method itself)
+                    x => x.MatchLdcI4(1),                                                           // 1 (byte, Equipment slot)
+                    x => x.MatchCall<ToolbotStanceBase>("SetEquipmentSlot")    // SetEquipmentSlot((byte)LdcI4.1)
+                    );
+                c.Index += 2;                                                                       // Next = IL_0039: ldarg.0
+                Logger.LogDebug(c);
+                c.RemoveRange(3);
+                c.Emit(OpCodes.Ldarg_0);
+                c.EmitDelegate<Action<ToolbotStanceBase>>((stance) =>
+                {
+                    NetworkUser user = stance.GetFieldValue<Inventory>("inventory")?.GetComponentInParent<PlayerCharacterMasterController>()?.networkUser;
+                    if (user)
+                    {
+                        GetClientAutoSwapConfig.Invoke("this works, yay", result =>
+                        {
+                            bool stopAutoSwap = false;
+                            stopAutoSwap = result;
+                            Logger.LogDebug($"Invoke result [{user.userName}]: {result}");
+                            if (stopAutoSwap)
+                                return;
+                        }, user);
+                        stance.InvokeMethod("SetEquipmentSlot", (byte)1);
+                    }
+                });
+                Logger.LogDebug(c);
+                Logger.LogDebug(il.ToString());
+                Logger.LogInfo("Modified ToolbotStanceB.OnEnter()");*/
+            }
+            catch (Exception e)
+            {
+                Logger.LogError($"There was an error modifying ToolbotStanceB.OnEnter():\n{e}");
+            }
         }
 
         public void InvokeSwitchEquipmentSlots()
@@ -123,6 +182,13 @@ namespace UnosMods.ToolbotEquipmentSwap
             else
                 inv.SetActiveEquipmentSlot(0);
             return true;
+        }
+
+        public bool ClientSendAutoSwapConfigValue(NetworkUser user, string message)
+        {
+            if (!NetworkServer.active)
+                return false;
+            return stopAutoSwap.Value;
         }
 
         public bool BodyIsSurvivorIndex(CharacterBody body, SurvivorIndex index)
