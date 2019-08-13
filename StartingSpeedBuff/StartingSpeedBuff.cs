@@ -35,7 +35,7 @@ namespace UnosMods.StartingSpeedBuff
         private void Stage_RespawnCharacter(On.RoR2.Stage.orig_RespawnCharacter orig, Stage self, CharacterMaster characterMaster)
         {
             orig(self, characterMaster);
-            if (Run.instance && Run.instance.stageClearCount + 1 <= KeepBuffUntilStage) // Toggle buffs until equal KeepBuff var
+            if (Run.instance && Stage.instance && Run.instance.stageClearCount + 1 <= KeepBuffUntilStage) // Toggle buffs until equal KeepBuff var
             {
                 if (characterMaster?.GetComponent<PlayerCharacterMasterController>())
                 {
@@ -47,7 +47,7 @@ namespace UnosMods.StartingSpeedBuff
 
         internal void ToggleBuff()
         {
-            if (NetworkServer.active && Run.instance)
+            if (NetworkServer.active && Run.instance && Stage.instance)
             {
                 var players = NetworkUser.readOnlyInstancesList;
                 if (ShouldBeBuffed)
