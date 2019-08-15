@@ -18,7 +18,3 @@ Lets you swap your equipment when playing as MUL-T with a dedicated key. It also
 
 `StopAutoSwap` (Server-side): Whether to stop the equipment slot changing when using MUL-T's Retool ability. *(Default: `true`)*
 - If this is true, clients will not be able to swap equipment slots as MUL-T at all unless they also have the mod installed.
-
-## Changelog
-### `1.0.0`
-- Initial release.
