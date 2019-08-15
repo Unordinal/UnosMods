@@ -19,12 +19,17 @@ namespace UnosMods.TabItemStats
                 {
                     new EquipmentStat(
                         value: 12,
-                        statText: "Missle Count",
+                        statText: "Missles",
                         formatter: new IntFormatter()
                         ),
                     new EquipmentStat(
+                        value: PlayerIsValid() ? (PlayerDamage() * 3f) * 12f : 3f,
+                        statText: "Missle (12x)",
+                        formatter: PlayerIsValid() ? new FloatFormatter(color: NeutralColor) : new PercentageFormatter(color: NeutralColor)
+                        ),
+                    new EquipmentStat(
                         value: PlayerIsValid() ? PlayerDamage() * 3f : 3f,
-                        statText: "Missle Damage",
+                        statText: "\tMissle (1x)",
                         formatter: PlayerIsValid() ? new FloatFormatter(color: NeutralColor) : new PercentageFormatter(color: NeutralColor)
                         ),
                     new EquipmentStat(

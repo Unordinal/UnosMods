@@ -10,7 +10,7 @@ namespace UnosMods.TabItemStats.AbstractModifiers
             count =>
             {
                 return ContextProvider.GetPlayerBodiesExcept(0)
-                            .Sum(body => body.ItemStacks(RoR2.ItemIndex.TreasureCache)) + count;
+                .Sum(body => body.ItemStacks(RoR2.ItemIndex.TreasureCache)) + count;
             };
         protected override IStatFormatter Formatter => new ModifierFormatter("From Teammates' Keys");
     }

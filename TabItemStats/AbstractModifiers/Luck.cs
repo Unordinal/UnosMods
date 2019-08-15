@@ -7,10 +7,8 @@ namespace UnosMods.TabItemStats.AbstractModifiers
 {
     public sealed class Luck : AbstractModifier
     {
-        /*protected override Func<float, float> Func =>
-            result => 1 - Mathf.Pow(1 - result, 1 + ContextProvider.ItemStacks(ItemIndex.Clover));*/
-        protected override float Func(float value, uint count = 1) =>
-            1 - Mathf.Pow(1 - value, 1 + ContextProvider.ItemStacks(ItemIndex.Clover));
+        protected override Func<float, float> Func =>
+            result => 1 - Mathf.Pow(1 - result, 1 + ContextProvider.ItemStacks(ItemIndex.Clover));
         protected override IStatFormatter Formatter => new ModifierFormatter("Luck", ItemIndex.Clover);
     }
 }
