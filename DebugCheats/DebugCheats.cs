@@ -18,8 +18,10 @@ namespace UnosMods.DebugCheats
         List<PickupIndex> tier1Drops = new List<PickupIndex>();
         List<PickupIndex> tier2Drops = new List<PickupIndex>();
         List<PickupIndex> tier3Drops = new List<PickupIndex>();
+        List<PickupIndex> lunarDrops = new List<PickupIndex>();
         List<PickupIndex> allDrops = new List<PickupIndex>();
         List<PickupIndex> equipmentDrops = new List<PickupIndex>();
+        List<PickupIndex> lunarEquipment = new List<PickupIndex>();
         bool givenMoney = false;
         bool godMode = false;
 
@@ -37,13 +39,15 @@ namespace UnosMods.DebugCheats
         {
             if (Run.instance)
             {
-                if (!tier1Drops.Any() || !tier2Drops.Any() || !tier3Drops.Any() || !allDrops.Any() || !equipmentDrops.Any())
+                if (!tier1Drops.Any() || !tier2Drops.Any() || !tier3Drops.Any() || !lunarDrops.Any() || !allDrops.Any() || !equipmentDrops.Any())
                 {
                     tier1Drops = Run.instance.availableTier1DropList;
                     tier2Drops = Run.instance.availableTier2DropList;
                     tier3Drops = Run.instance.availableTier3DropList;
+                    lunarDrops = Run.instance.availableLunarDropList.Where(t => t.equipmentIndex == EquipmentIndex.None).ToList();
                     allDrops = tier1Drops.Concat(tier2Drops.Concat(tier3Drops)).ToList();
                     equipmentDrops = Run.instance.availableEquipmentDropList;
+                    lunarEquipment = Run.instance.availableLunarDropList.Where(t => t.equipmentIndex != EquipmentIndex.None).ToList();
                 }
                 else if (NetworkServer.active)
                 {
@@ -81,12 +85,27 @@ namespace UnosMods.DebugCheats
                     {
                         var transform = player.master.GetBody().coreTransform;
                         PickupDropletController.CreatePickupDroplet(GetRandomDropFromList(equipmentDrops), transform.position, transform.forward * 20f);
+                        PickupDropletController.CreatePickupDroplet(GetRandomDropFromList(lunarEquipment), transform.position, transform.forward * 20f);
                     }
                     if (Input.GetKey(KeyCode.F5))
                     {
-                        player.master.GiveMoney(100);
+                        foreach (var item in allDrops)
+                            inv.GiveItem(item.itemIndex);
                     }
                     if (Input.GetKey(KeyCode.F6))
+                    {
+                        foreach (var item in lunarDrops)
+                            inv.GiveItem(item.itemIndex);
+                    }
+                    if (Input.GetKey(KeyCode.F7))
+                    {
+                        player.master.GiveMoney(100);
+                    }
+                    if (Input.GetKey(KeyCode.F8))
+                    {
+                        TeamManager.instance?.SetTeamLevel(TeamIndex.Player, TeamManager.instance.GetTeamLevel(TeamIndex.Player) + 1);
+                    }
+                    if (Input.GetKey(KeyCode.F9))
                     {
                         Run.instance.AdvanceStage(Run.instance.nextStageScene);
                     }
