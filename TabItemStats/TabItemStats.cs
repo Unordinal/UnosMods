@@ -11,6 +11,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using BepInEx.Logging;
+using System.Reflection;
 
 namespace UnosMods.TabItemStats
 {
@@ -21,7 +22,7 @@ namespace UnosMods.TabItemStats
         public const string PluginName = "TabItemStats";
         public const string PluginVersion = "1.0.0";
         public const string PluginGUID = "com.unordinal.itemtabstats";
-        new internal static ManualLogSource Logger { get; }
+        internal new static ManualLogSource Logger { get; } = new ManualLogSource(PluginName);
 
         internal void Awake()
         {

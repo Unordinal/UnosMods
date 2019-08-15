@@ -22,20 +22,20 @@ namespace UnosMods.TabItemStats
             return false;
         }
 
-        public static int ItemStacks(ItemIndex item, int userId = 0)
-        {
-            return GetLocalBody(userId)?.ItemStacks(item) ?? 0;
-        }
-
-        public static float PlayerMaxHealth(int userId = 0)
-        {
-            return GetLocalBody(userId)?.maxHealth ?? 0;
-        }
-
-        public static float PlayerDamage(int userId = 0)
-        {
-            return GetLocalBody(userId)?.damage ?? 0;
-        }
+        public static int ItemStacks(ItemIndex item, int userId = 0) =>
+            GetLocalBody(userId)?.ItemStacks(item) ?? 0;
+        public static float PlayerMaxHealth(int userId = 0) =>
+            GetLocalBody(userId)?.maxHealth ?? 0;
+        public static float PlayerDamage(int userId = 0) =>
+            GetLocalBody(userId)?.damage ?? 0;
+        public static float PlayerAttackSpeed(int userId = 0) =>
+            GetLocalBody(userId)?.attackSpeed ?? 0;
+        public static float PlayerArmor(int userId = 0) =>
+            GetLocalBody(userId)?.armor ?? 0;
+        public static float PlayerRegen(int userId = 0) =>
+            GetLocalBody(userId)?.regen ?? 0;
+        public static float PlayerSpeed(int userId = 0) =>
+            GetLocalBody(userId)?.moveSpeed ?? 0;
 
         public static IEnumerable<CharacterBody> GetPlayerBodiesExcept(int userId)
         {

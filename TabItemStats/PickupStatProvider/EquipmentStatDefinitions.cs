@@ -41,8 +41,9 @@ namespace UnosMods.TabItemStats
                 [EquipmentIndex.Fruit] = new List<EquipmentStat>
                 {
                     new EquipmentStat(
-                        value: 0.5f,
-                        statText: "Heal Amount"
+                        value: PlayerIsValid() ? PlayerMaxHealth() * 0.5f : 0.5f,
+                        statText: "Heal Amount",
+                        formatter: PlayerIsValid() ? new FloatFormatter(suffix: " HP") : new PercentageFormatter(suffix: " HP")
                         ),
                     new EquipmentStat(
                         value: 45,
@@ -128,7 +129,7 @@ namespace UnosMods.TabItemStats
                     new EquipmentStat(
                         value: PlayerIsValid()? PlayerDamage() * 6f: 6f,
                         statText: "Zap Damage",
-                        formatter: PlayerIsValid()? new FloatFormatter(suffix: "/s", color: NeutralColor) : new PercentageFormatter(suffix: "/s", color: NeutralColor)
+                        formatter: PlayerIsValid() ? new FloatFormatter(suffix: "/s", color: NeutralColor) : new PercentageFormatter(suffix: "/s", color: NeutralColor)
                         ),
                     new EquipmentStat(
                         value: 20,
@@ -138,7 +139,7 @@ namespace UnosMods.TabItemStats
                     new EquipmentStat(
                         value: PlayerIsValid()? PlayerDamage() * 40f : 40f,
                         statText: "Detonation Damage",
-                        formatter: PlayerIsValid()? new FloatFormatter(color: NeutralColor) : new PercentageFormatter(color: NeutralColor)
+                        formatter: PlayerIsValid() ? new FloatFormatter(color: NeutralColor) : new PercentageFormatter(color: NeutralColor)
                         ),
                     new EquipmentStat(
                         value: 140,
@@ -155,7 +156,7 @@ namespace UnosMods.TabItemStats
                         ),
                     new EquipmentStat(
                         value: 0.2f,
-                        statText: "Movement Speed"
+                        statText: "Move Speed"
                         ),
                     new EquipmentStat(
                         value: 60,
@@ -166,8 +167,9 @@ namespace UnosMods.TabItemStats
                 [EquipmentIndex.Lightning] = new List<EquipmentStat>
                 {
                     new EquipmentStat(
-                        value: 30f,
-                        statText: "Damage"
+                        value: PlayerIsValid() ? PlayerDamage() * 30f : 30f,
+                        statText: "Damage",
+                        formatter: PlayerIsValid() ? new FloatFormatter(color: NeutralColor) : new PercentageFormatter(color: NeutralColor)
                         ),
                     new EquipmentStat(
                         value: 20,
@@ -178,8 +180,9 @@ namespace UnosMods.TabItemStats
                 [EquipmentIndex.GoldGat] = new List<EquipmentStat>
                 {
                     new EquipmentStat(
-                        value: 1f,
-                        statText: "Damage"
+                        value: PlayerIsValid() ? PlayerDamage() : 1f,
+                        statText: "Damage",
+                        formatter: PlayerIsValid() ? new FloatFormatter(color: NeutralColor) : new PercentageFormatter(color: NeutralColor)
                         ),
                     new EquipmentStat(
                         value: 1,
@@ -190,9 +193,9 @@ namespace UnosMods.TabItemStats
                 [EquipmentIndex.PassiveHealing] = new List<EquipmentStat>
                 {
                     new EquipmentStat(
-                        value: 0.015f,
+                        value: PlayerIsValid() ? PlayerMaxHealth() * 0.015f : 0.015f,
                         statText: "Healing",
-                        formatter: new PercentageFormatter(suffix: "/s")
+                        formatter: PlayerIsValid() ? new FloatFormatter(suffix: " HP/s") : new PercentageFormatter(suffix: " HP/s")
                         ),
                     new EquipmentStat(
                         value: 0.1f,
@@ -252,8 +255,9 @@ namespace UnosMods.TabItemStats
                 [EquipmentIndex.Meteor] = new List<EquipmentStat>
                 {
                     new EquipmentStat(
-                        value: 6f,
-                        statText: "Damage"
+                        value: PlayerIsValid() ? PlayerDamage() * 6f : 6f,
+                        statText: "Damage",
+                        formatter: PlayerIsValid() ? new FloatFormatter(color: NeutralColor) : new PercentageFormatter(color: NeutralColor)
                         ),
                     new EquipmentStat(
                         value: 20,
@@ -281,17 +285,17 @@ namespace UnosMods.TabItemStats
                     new EquipmentStat(
                         value: PlayerIsValid()? PlayerMaxHealth() * 0.05f : 0.05f,
                         statText: "Damage Taken",
-                        formatter: PlayerIsValid()? new IntFormatter(suffix: " HP/s", color: NeutralColor) : new PercentageFormatter(suffix: " of max health", color: NeutralColor)
+                        formatter: PlayerIsValid() ? new IntFormatter(suffix: " HP/s", color: NeutralColor) : new PercentageFormatter(suffix: " of max health", color: NeutralColor)
                         ),
                     new EquipmentStat(
                         value: PlayerIsValid()? PlayerMaxHealth() * 0.025f : 0.025f,
                         statText: "Damage to Allies",
-                        formatter: PlayerIsValid()? new IntFormatter(suffix: " HP/s", color: NegativeColor) : new PercentageFormatter(color: NegativeColor)
+                        formatter: PlayerIsValid() ? new IntFormatter(suffix: " HP/s", color: NegativeColor) : new PercentageFormatter(color: NegativeColor)
                         ),
                     new EquipmentStat(
                         value: PlayerIsValid()? PlayerMaxHealth() * 1.2f : 1.2f,
                         statText: "Damage to Enemies",
-                        formatter: PlayerIsValid()? new IntFormatter(suffix: " HP/s", color: PositiveColor) : new PercentageFormatter(color: PositiveColor)
+                        formatter: PlayerIsValid() ? new IntFormatter(suffix: " HP/s", color: PositiveColor) : new PercentageFormatter(color: PositiveColor)
                         ),
                     new EquipmentStat(
                         value: 45,
@@ -308,7 +312,7 @@ namespace UnosMods.TabItemStats
                         ),
                     new EquipmentStat(
                         value: 0.5f,
-                        statText: "Slow Percentage"
+                        statText: "Slowing"
                         ),
                     new EquipmentStat(
                         value: 20,
@@ -329,29 +333,34 @@ namespace UnosMods.TabItemStats
                         formatter: new FloatFormatter(suffix: "s")
                         ),
                     new EquipmentStat(
-                        value: 1f,
-                        statText: "Buff Damage"
+                        value: PlayerIsValid() ? PlayerDamage() : 1f,
+                        statText: "Addit. Damage",
+                        formatter: PlayerIsValid() ? new FloatFormatter(color: NeutralColor) : new PercentageFormatter(color: NeutralColor)
                         ),
                     new EquipmentStat(
-                        value: 0.7f,
-                        statText: "Buff Attack Speed"
+                        value: PlayerIsValid() ? PlayerAttackSpeed() * 0.7f : 0.7f,
+                        statText: "Addit. Attack Speed",
+                        formatter: PlayerIsValid() ? new FloatFormatter(color: UtilityColor) : new PercentageFormatter(color: UtilityColor)
                         ),
                     new EquipmentStat(
-                        value: 0.5f,
-                        statText: "Buff Max Health"
+                        value: PlayerIsValid() ? PlayerMaxHealth() * 0.5f : 0.5f,
+                        statText: "Addit. Max Health",
+                        formatter: PlayerIsValid() ? new FloatFormatter() : new PercentageFormatter()
                         ),
                     new EquipmentStat(
-                        value: 20,
-                        statText: "Buff Armor",
-                        formatter: new IntFormatter()
+                        value: PlayerIsValid() ? PlayerArmor() + 20 : 20,
+                        statText: "Addit. Armor",
+                        formatter: new IntFormatter(color: UtilityColor)
                         ),
                     new EquipmentStat(
-                        value: 3f,
-                        statText: "Buff Passive Regeneration"
+                        value: PlayerIsValid() ? PlayerRegen() * 3f : 3f,
+                        statText: "Addit. Passive Regeneration",
+                        formatter: PlayerIsValid() ? new FloatFormatter(suffix: " HP/s") : new PercentageFormatter(suffix: " HP/s")
                         ),
                     new EquipmentStat(
-                        value: 0.3f,
-                        statText: "Buff Move Speed"
+                        value: PlayerIsValid() ? PlayerSpeed() * 0.3f : 0.3f,
+                        statText: "Addit. Move Speed",
+                        formatter: PlayerIsValid() ? new FloatFormatter(suffix: "m/s", color: UtilityColor) : new PercentageFormatter(suffix: "m/s", color: UtilityColor)
                         ),
                     new EquipmentStat(
                         value: 0.2f,

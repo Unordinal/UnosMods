@@ -14,6 +14,8 @@ namespace UnosMods.TabItemStats
         private static string PositiveColor { get { return StyleCatalog.GetColorHexString(StyleCatalog.StyleIndex.cIsHealing, true); } }
         private static string NeutralColor { get { return StyleCatalog.GetColorHexString(StyleCatalog.StyleIndex.cIsDamage, true); } }
         private static string NegativeColor { get { return StyleCatalog.GetColorHexString(StyleCatalog.StyleIndex.cIsHealth, true); } }
+        private static string UtilityColor { get { return StyleCatalog.GetColorHexString(StyleCatalog.StyleIndex.cIsUtility, true); } }
+        private static string ShrineColor { get { return StyleCatalog.GetColorHexString(StyleCatalog.StyleIndex.cShrine, true); } }
         private static string CooldownColor { get { return ColorCatalog.ColorIndex.Equipment.ToHex(); } }
         private static string DoesNotStackColor { get { return "#959595"; } }
 
