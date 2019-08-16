@@ -101,17 +101,17 @@ namespace UnosMods.TabItemStats
                     new EquipmentStat(
                         value: 225 + ScaleByLevel(67.5f),
                         statText: "Drone Health",
-                        formatter: new IntFormatter(suffix: " HP")
+                        formatter: new IntFormatter(suffix: $" HP (lv. {TeamLevel()})")
                         ),
                     new EquipmentStat(
                         value: 5f + ScaleByLevel(1f),
                         statText: "Drone Regeneration",
-                        formatter: new FloatFormatter(suffix: " HP/s")
+                        formatter: new FloatFormatter(suffix: $" HP/s (lv. {TeamLevel()})")
                         ),
                     new EquipmentStat(
                         value: 7f + ScaleByLevel(1.4f),
                         statText: "Drone Damage",
-                        formatter: new FloatFormatter()
+                        formatter: new FloatFormatter(suffix: $" (lv. {TeamLevel()})")
                         ),
                     new EquipmentStat(
                         value: 100,
