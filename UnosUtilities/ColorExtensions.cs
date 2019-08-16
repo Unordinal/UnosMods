@@ -8,18 +8,6 @@ namespace UnosUtilities
     public static class ColorExtensions
     {
         /// <summary>
-        /// Takes a hex color and turns it into a Color.
-        /// </summary>
-        /// <param name="hex">The hexadecimal color (ex: #FF0000) to convert.</param>
-        /// <returns>Returns <c>UnityEngine.Color</c></returns>
-        [Obsolete("This function is broken and has a better equivalent: ColorUtility.TryParseRGBFromHtml", true)]
-        public static Color HexToRGB(this string hex)
-        {
-            System.Drawing.Color parsedHex = System.Drawing.Color.FromArgb(int.Parse(hex.Replace("#", ""), NumberStyles.AllowHexSpecifier));
-            return new Color(parsedHex.R, parsedHex.G, parsedHex.B);
-        }
-
-        /// <summary>
         /// Takes a hex color and splits it into a string[3]: RR, GG, BB
         /// </summary>
         /// <param name="hex">A hexadecimal color (ex: #FF0000)</param>
@@ -58,10 +46,8 @@ namespace UnosUtilities
 
         public static string InterpolatedHealthColor(float minVal, float maxVal)
         {
-            Color minColor;
-            Color maxColor;
-            ColorUtility.TryParseHtmlString(RoR2Colors.Tier3Item, out minColor);
-            ColorUtility.TryParseHtmlString(RoR2Colors.Tier2Item, out maxColor);
+            ColorUtility.TryParseHtmlString(RoR2Colors.Tier3Item, out Color minColor);
+            ColorUtility.TryParseHtmlString(RoR2Colors.Tier2Item, out Color maxColor);
             Color interpColor = Color.Lerp(minColor, maxColor, minVal / maxVal);
             return ColorUtility.ToHtmlStringRGB(interpColor);
         }

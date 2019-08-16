@@ -33,21 +33,26 @@ namespace UnosUtilities
                 indexToHexString[i] = Util.RGBToHex(indexToColor32[i]);*/
         }
 
-        public static Color32 GetColor(StyleIndex index)
+        public static Color32 GetColor(this StyleIndex index)
         {
             if (index < StyleIndex.None || index > StyleIndex.cUserSetting)
                 index = StyleIndex.None;
             return indexToColor32[(int)index];
         }
 
-        public static string GetColorHexString(StyleIndex index)
+        public static string GetColorHexString(this StyleIndex index, bool includeSymbol = false)
         {
             if (index < StyleIndex.None || index > StyleIndex.cUserSetting)
                 index = StyleIndex.None;
-            return indexToHexString[(int)index];
+            return (includeSymbol ? "#" : "") + indexToHexString[(int)index];
         }
 
-        static uint Size(this StyleIndex style)
+        public static string Style(this string str, StyleIndex styleIndex)
+        {
+            return $"<style={styleIndex}>{str}</style>";
+        }
+
+        public static uint Size(this StyleIndex style)
         {
             return 0;
         }
