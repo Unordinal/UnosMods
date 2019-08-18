@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using BepInEx;
 using BepInEx.Configuration;
 using LeTai.Asset.TranslucentImage;
@@ -90,7 +91,7 @@ namespace UnosMods.StartingItemsPicker
             var items = new List<ItemIndex>();
             for (int i = 0; i < itemCount; i++)
                 items.Add(reader.ReadItemIndex());
-            StartCoroutine(DisplayItemPicker(items, numOfItems, allowedStack, CallNetItemsPicked));
+            DisplayItemPicker(items, numOfItems, allowedStack, CallNetItemsPicked);
         }
 
         [Client]
@@ -123,21 +124,26 @@ namespace UnosMods.StartingItemsPicker
 
         public delegate void ItemsCallback(List<ItemIndex> items);
 
-        // Because ItemInventoryDisplay isn't immediately spawned at start and I didn't want to bother with using a different hook, here we are with a coroutine.
-        public IEnumerator DisplayItemPicker(List<ItemIndex> availableItems, ushort numOfItems, ushort allowedStack, ItemsCallback itemsCB)
+        public async Task<GameObject> GetItemInventoryDisplayAsync()
+        {
+            GameObject IID;
+            do {
+                Logger.LogInfo("Waiting for client to spawn ItemInventoryDisplay...");
+                await Task.Delay(150);
+                IID = GameObject.Find("ItemInventoryDisplay");
+            } while (IID == null);
+            return IID;
+        }
+
+        // Async because ItemInventoryDisplay isn't immediately spawned at the start and I didn't want to use another hook.
+        // Had a coroutine but I find await cleaner in this case.
+        public async void DisplayItemPicker(List<ItemIndex> availableItems, ushort numOfItems, ushort allowedStack, ItemsCallback itemsCB)
         {
             Debug.Log("Building and displaying Item Picker Window...");
-            var itemInventoryDisplay = GameObject.Find("ItemInventoryDisplay");
-            while (itemInventoryDisplay == null)
-            {
-                Logger.LogInfo("Waiting for client to spawn ItemInventoryDisplay...");
-                itemInventoryDisplay = GameObject.Find("ItemInventoryDisplay");
-                yield return new WaitForSeconds(0.15f);
-            }
+            var itemInventoryDisplay = await GetItemInventoryDisplayAsync();
             float minSize = 400f;
             float maxSize = 1000f;
             float uiWidth = Mathf.Clamp(availableItems.Count * 20f, minSize, maxSize);
-            //texUIHighlightHeader
             Logger.LogDebug("itemInventoryDisplay: " + (itemInventoryDisplay != null).ToString());
             
             GameObject pickerUI = new GameObject();
@@ -296,7 +302,6 @@ namespace UnosMods.StartingItemsPicker
             LayoutRebuilder.ForceRebuildLayoutImmediate(itemCtr.GetComponent<RectTransform>());
             ctr.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical,
                 itemCtr.GetComponent<RectTransform>().sizeDelta.y + 100f + 30f);
-            yield break;
         }
     }
 }
