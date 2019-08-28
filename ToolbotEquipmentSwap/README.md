@@ -1,6 +1,8 @@
 # ToolbotEquipmentSwap
 Lets you swap your equipment when playing as MUL-T with a dedicated key. It also optionally stops MUL-T's Retool ability from swapping his equipment slots. Configurable.
 
+*Note: The host **must** have the mod for it to work for everyone. Clients without the mod are unaffected.*
+
 ## Installation
 1. Move `ToolbotEquipmentSwap.dll` to `Risk of Rain 2\BepInEx\plugins`.
 
@@ -12,9 +14,12 @@ Lets you swap your equipment when playing as MUL-T with a dedicated key. It also
 4. Edit the settings to your preference.
 
 ### Settings
-*Server-side settings apply to everyone in the server based on the host's config file setting.*
-
 `SwapKey`: The key to swap between MUL-T's equipment slots. *(Default: `X`)*
 
-`StopAutoSwap` (Server-side): Whether to stop the equipment slot changing when using MUL-T's Retool ability. *(Default: `true`)*
-- If this is true, clients will not be able to swap equipment slots as MUL-T at all unless they also have the mod installed.
+`StopAutoSwap`: Whether to stop the equipment slot changing when using MUL-T's Retool ability. *(Default: `true`)*
+
+## Changelog
+### `1.0.1 | 2019-8-27`
+- Client's own configuration for the setting `StopAutoSwap` now apply to them instead of the host's setting taking precedence. Unmodded clients are now completely unaffected and can swap equipment using Retool no matter the host's configuration.
+### `1.0.0 | 2019-8-11`
+- Initial release.
