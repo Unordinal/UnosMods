@@ -30,7 +30,7 @@ namespace UnosUtilities.UIHelper
                 name = "UIHelper.UIContainer",
             };
             uiCtr.transform.SetParent(uiBase.transform, false);
-            uiCtr.AddComponent<RectTransform>().sizeDelta = new Vector2(0.5f, 0.5f);
+            uiCtr.AddComponent<RectTransform>().sizeDelta = ctrSizeDelta;
             return uiBase;
         }
     }

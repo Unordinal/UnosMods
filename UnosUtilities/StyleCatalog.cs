@@ -26,7 +26,6 @@ namespace UnosUtilities
             indexToColor32[10] = new Color32(131, 148, 179, byte.MaxValue);                                 // cEvent
             indexToColor32[11] = new Color32(255, 201, 245, byte.MaxValue);                                 // cWorldEvent
             indexToColor32[12] = new Color32(250, 250, 204, byte.MaxValue);                                 // cUserSetting
-
             indexToHexString = indexToColor32.Select(x => Util.RGBToHex(x)).ToArray();
 
             /*for (var i = 0; i < Enum.GetNames(typeof(StyleIndex)).Length; i++)
