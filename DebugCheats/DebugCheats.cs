@@ -7,6 +7,8 @@ using UnityEngine;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine.Networking;
+using static UnosMods.DebugCheats.Extensions;
+using DebugCheats;
 
 namespace UnosMods.DebugCheats
 {
@@ -56,7 +58,7 @@ namespace UnosMods.DebugCheats
 
                     if (!givenMoney)
                     {
-                        player.master.GiveMoney(100000);
+                        player.master.GiveMoney(1000000);
                         givenMoney = true;
                     }
                     if (Input.GetKeyDown(KeyCode.Alpha0))
@@ -81,18 +83,18 @@ namespace UnosMods.DebugCheats
                         var transform = player.master.GetBody().coreTransform;
                         PickupDropletController.CreatePickupDroplet(GetRandomDropFromList(allDrops), transform.position, transform.forward * 20f);
                     }
-                    if (Input.GetKey(KeyCode.F4))
+                    if (Input.GetKeyDown(KeyCode.F4))
                     {
                         var transform = player.master.GetBody().coreTransform;
                         PickupDropletController.CreatePickupDroplet(GetRandomDropFromList(equipmentDrops), transform.position, transform.forward * 20f);
                         PickupDropletController.CreatePickupDroplet(GetRandomDropFromList(lunarEquipment), transform.position, transform.forward * 20f);
                     }
-                    if (Input.GetKey(KeyCode.F5))
+                    if (Input.GetKeyDown(KeyCode.F5))
                     {
                         foreach (var item in allDrops)
                             inv.GiveItem(item.itemIndex);
                     }
-                    if (Input.GetKey(KeyCode.F6))
+                    if (Input.GetKeyDown(KeyCode.F6))
                     {
                         foreach (var item in lunarDrops)
                             inv.GiveItem(item.itemIndex);
@@ -101,11 +103,11 @@ namespace UnosMods.DebugCheats
                     {
                         player.master.GiveMoney(100);
                     }
-                    if (Input.GetKey(KeyCode.F8))
+                    if (Input.GetKeyDown(KeyCode.F8))
                     {
                         TeamManager.instance?.SetTeamLevel(TeamIndex.Player, TeamManager.instance.GetTeamLevel(TeamIndex.Player) + 1);
                     }
-                    if (Input.GetKey(KeyCode.F9))
+                    if (Input.GetKeyDown(KeyCode.F9))
                     {
                         Run.instance.AdvanceStage(Run.instance.nextStageScene);
                     }
@@ -121,6 +123,56 @@ namespace UnosMods.DebugCheats
                 return list[Run.instance.treasureRng.RangeInt(0, list.Count)];
             else
                 return allDrops[Run.instance.treasureRng.RangeInt(0, allDrops.Count)];
+        }
+
+        [ConCommand(commandName = "dc_givebuff", flags = ConVarFlags.ExecuteOnServer, helpText = "Gives a buff.\n\t[0]: buffName")]
+        public static void CCGiveBuff(ConCommandArgs args)
+        {
+            if (args.Count == 0)
+                return;
+
+            string buffName = args[0];
+            try
+            {
+                var userBody = args.sender?.GetCurrentBody();
+                BuffIndex buff = FindBuff(buffName);
+                if (userBody && buff != BuffIndex.None)
+                    userBody.AddBuff(buff);
+                else if (!userBody)
+                    throw new Exception("Invalid body");
+                else if (buff == BuffIndex.None)
+                    throw new Exception($"Invalid buff '{buffName}'");
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e.Message);
+            }
+        }
+
+        [ConCommand(commandName = "dc_removebuff", flags = ConVarFlags.ExecuteOnServer, helpText = "Removes a buff.\n\t[0]: buffName")]
+        public static void CCRemoveBuff(ConCommandArgs args)
+        {
+            if (args.Count == 0)
+                return;
+
+            string buffName = args[0];
+            CharacterBody playerBody = string.IsNullOrEmpty(args[1]) 
+                ? args[1].Convert<ulong>().GetNetworkUser()?.GetCurrentBody() 
+                : args.sender?.GetCurrentBody();
+            try
+            {
+                BuffIndex buff = FindBuff(buffName);
+                if (playerBody && buff != BuffIndex.None)
+                    playerBody.RemoveBuff(buff);
+                else if (!playerBody)
+                    throw new Exception("Invalid body");
+                else if (buff == BuffIndex.None)
+                    throw new Exception($"Invalid buff '{buffName}'");
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e.Message);
+            }
         }
 
         [ConCommand(commandName = "dc_loadscene", flags = ConVarFlags.ExecuteOnServer, helpText = "Loads the specified scene.\n\t[0]: sceneName")]
@@ -166,28 +218,5 @@ namespace UnosMods.DebugCheats
                 Debug.LogError($"{exc}");
             }
         }
-
-        public static string PadBoth(string source, int length) //https://stackoverflow.com/a/17590723/
-        {
-            int spaces = length - source.Length;
-            int padLeft = spaces / 2 + source.Length;
-            return source.PadLeft(padLeft).PadRight(length);
-        }
-
-        /*[ConCommand(commandName = "list_components", 
-            flags = ConVarFlags.ExecuteOnServer, 
-            helpText = "List components of the object under your crosshairs. Add an index to list components of the component whose index is entered. Can enter multiple, dot-separated indices, ex: 0.2.1")]
-        private static void CCListComponents(ConCommandArgs args)
-        {
-            CharacterBody body = args.sender.master?.GetBody();
-            if (!body)
-                return;
-            HurtBox hurtBox = null;
-            RaycastHit raycastHit;
-            if (Util.CharacterRaycast(body, aimRay, out raycastHit, 1000f, LayerIndex.world.mask | LayerIndex.defaultLayer.mask, QueryTriggerInteraction.Collide))
-            {
-                hurtBox = raycastHit.collider.GetComponent<HurtBox>();
-            }
-        }*/
     }
 }
