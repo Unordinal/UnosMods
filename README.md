@@ -33,3 +33,10 @@ Helper library, not a mod. Used mainly by InfoOnPing to give extension functions
 
 ## Requirements
 All mods require BepInEx and R2API. Some require MiniRpcLib. You can get these at https://thunderstore.io/
+
+Build requirements are the above, plus some standard RoR2 dependencies including:
+
+- Assembly-CSharp
+- UnityEngine
+- UnityEngine.Core
+- UnityEngine.Networking
