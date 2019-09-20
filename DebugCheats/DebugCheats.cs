@@ -184,9 +184,10 @@ namespace UnosMods.DebugCheats
             string sceneName = args[0];
             try
             {
-                if (!SceneCatalog.allSceneDefs.Contains(SceneCatalog.GetSceneDefFromSceneName(sceneName)))
+                var sceneDef = SceneCatalog.GetSceneDefFromSceneName(sceneName);
+                if (!SceneCatalog.allSceneDefs.Contains(sceneDef))
                     throw new Exception();
-                Run.instance.AdvanceStage(sceneName);
+                Run.instance.AdvanceStage(sceneDef);
             }
             catch
             {
