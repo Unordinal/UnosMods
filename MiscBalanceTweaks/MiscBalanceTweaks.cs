@@ -12,7 +12,7 @@ namespace UnosMods.MiscBalanceTweaks
     {
         public const string PluginGUID = "com.unordinal.MiscBalanceTweaks";
         public const string PluginName = "MiscBalanceTweaks";
-        public const string PluginVersion = "1.0.0";
+        public const string PluginVersion = "1.0.1";
         internal new static ManualLogSource Logger { get; } = new ManualLogSource(PluginName);
 
         public MiscBalanceTweaks()
@@ -21,21 +21,18 @@ namespace UnosMods.MiscBalanceTweaks
             if (MinSkillCooldown != 0.5f)
             {
                 Logger.LogInfo("Creating hook.");
-                IL.RoR2.GenericSkill.RecalculateFinalRechargeInterval += GenericSkill_RecalculateFinalRechargeInterval;
+                IL.RoR2.GenericSkill.CalculateFinalRechargeInterval += GenericSkill_CalculateFinalRechargeInterval;
             }
             else
                 Logger.LogWarning("MinSkillCooldown is 0.5, which is the vanilla value. Did you intend to change this?");
         }
 
-        private void GenericSkill_RecalculateFinalRechargeInterval(ILContext il)
+        private void GenericSkill_CalculateFinalRechargeInterval(ILContext il)
         {
             ILCursor c = new ILCursor(il);
             c.GotoNext(
                 x => x.MatchLdcR4(0.5f),
-                x => x.MatchLdarg(0),
-                x => x.MatchLdfld(out _),
-                x => x.MatchLdarg(0),
-                x => x.MatchCallvirt(out _)
+                x => x.MatchLdarg(0)
             );
             c.Next.Operand = MinSkillCooldown;
         }
