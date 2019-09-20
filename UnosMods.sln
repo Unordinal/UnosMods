@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BossTeleportPercent", "Boss
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DebugCheats", "DebugCheats\DebugCheats.csproj", "{4B3E3219-7E0F-479B-A90D-BECB4FA5C649}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnosUtilities", "UnosUtilities\UnosUtilities.csproj", "{4821641A-8889-4642-BA7E-2B2458E06E21}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnosUtilities", "UnosUtilities\UnosUtilities.csproj", "{4821641A-8889-4642-BA7E-2B2458E06E21}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InfoOnPing", "InfoOnPing\InfoOnPing.csproj", "{743F0BF8-3023-4185-8C72-E839139B2891}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -18,11 +18,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StartingItemsPicker", "Star
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DropItems", "DropItems\DropItems.csproj", "{926F1C2C-8887-4F2C-A109-393AE2BBBE62}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToolbotEquipmentSwap", "ToolbotEquipmentSwap\ToolbotEquipmentSwap.csproj", "{3E90B2F8-B961-4DD6-9175-B7591548B3F3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ToolbotEquipmentSwap", "ToolbotEquipmentSwap\ToolbotEquipmentSwap.csproj", "{3E90B2F8-B961-4DD6-9175-B7591548B3F3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StartingSpeedBuff", "StartingSpeedBuff\StartingSpeedBuff.csproj", "{BE8C52F6-66CF-47D8-8CF0-21908004DE03}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TabItemStats", "TabItemStats\TabItemStats.csproj", "{C0FF1CF5-D0FB-4365-9CF4-D4B696009349}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiscBalanceTweaks", "MiscBalanceTweaks\MiscBalanceTweaks.csproj", "{7593A1A7-166D-4FF4-BFBB-13E16B7ABCED}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -66,6 +68,10 @@ Global
 		{C0FF1CF5-D0FB-4365-9CF4-D4B696009349}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C0FF1CF5-D0FB-4365-9CF4-D4B696009349}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C0FF1CF5-D0FB-4365-9CF4-D4B696009349}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7593A1A7-166D-4FF4-BFBB-13E16B7ABCED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7593A1A7-166D-4FF4-BFBB-13E16B7ABCED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7593A1A7-166D-4FF4-BFBB-13E16B7ABCED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7593A1A7-166D-4FF4-BFBB-13E16B7ABCED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
