@@ -84,8 +84,8 @@ namespace UnosMods.TabItemStats
                 [ItemIndex.Crowbar] = new List<ItemStat>
                 {
                     new ItemStat(
-                        formula: count => StackFormula(count, 0.3f, 1.5f),
-                        statText: "Additional Damage"
+                        formula: count => StackFormula(count, 0.5f),
+                        statText: "Damage Boost"
                         ),
                     new ItemStat(
                         formula: count => 0.9f,
@@ -132,8 +132,8 @@ namespace UnosMods.TabItemStats
                 [ItemIndex.HealWhileSafe] = new List<ItemStat>
                 {
                     new ItemStat(
-                        formula: count => StackFormula(count, 1.5f, 2.5f),
-                        statText: "Regeneration Increase"
+                        formula: count => StackFormula(count, 3f),
+                        statText: "Regen. Rate"
                         )
                 },
                 [ItemIndex.PersonalShield] = new List<ItemStat>
@@ -217,7 +217,7 @@ namespace UnosMods.TabItemStats
                 [ItemIndex.StickyBomb] = new List<ItemStat>
                 {
                     new ItemStat(
-                        formula: count => StackFormula(count, 0.025f, 0.05f),
+                        formula: count => StackFormula(count, 0.05f),
                         statText: "Proc. Chance",
                         formatter: new PercentageFormatter(maxValue: 1f),
                         modifiers: Modifiers.Luck
@@ -257,21 +257,26 @@ namespace UnosMods.TabItemStats
                         statText: "Additional Boss Damage"
                         )
                 },
-                [ItemIndex.ExecuteLowHealthElite] = new List<ItemStat>
-                {
-                    new ItemStat(
-                        formula: count => 1 - 1 / (StackFormula(count, 0.05f, 0.2f) + 1f),
-                        statText: "Execute Threshold",
-                        formatter: new PercentageFormatter(maxValue: 1f)
-                        )
-                },
                 [ItemIndex.BarrierOnKill] = new List<ItemStat>
                 {
                     new ItemStat(
-                        formula: count => StackFormula(count, 20),
-                        statText: "Barrier per Kill",
+                        formula: count => StackFormula(count, 15),
+                        statText: "Barrier Gain",
                         formatter: new IntFormatter(suffix: " BP")
                         )
+                },
+                [ItemIndex.NearbyDamageBonus] = new List<ItemStat>
+                {
+                    new ItemStat(
+                        formula: count => StackFormula(count, 0.15f),
+                        statText: "Damage Boost"
+                        ),
+                    new ItemStat(
+                        formula: count => 13,
+                        statText: "Range",
+                        doesNotStack: true,
+                        formatter: new FloatFormatter(suffix: "m", color: DoesNotStackColor)
+                        ),
                 }, 
                 #endregion
 
@@ -375,19 +380,19 @@ namespace UnosMods.TabItemStats
                 {
                     new ItemStat(
                         formula: count => StackFormula(count, 1.5f, 3f),
-                        statText: "Invisibility Time",
+                        statText: "Duration",
                         formatter: new FloatFormatter(suffix: "s")
                         ),
                     new ItemStat(
                         formula: count => 0.01f,
-                        statText: "Invisibility Chance",
+                        statText: "Invis. Chance",
                         doesNotStack: true,
                         formatter: new PercentageFormatter(maxValue: 1f, suffix: " per % of max health damage taken", color: DoesNotStackColor),
                         modifiers: Modifiers.Luck
                         ),
                     new ItemStat(
                         formula: count => 0.4f,
-                        statText: "Invisibility Movement Speed",
+                        statText: "Invis. Extra Speed",
                         doesNotStack: true,
                         formatter: new PercentageFormatter(color: DoesNotStackColor)
                         )
@@ -544,7 +549,29 @@ namespace UnosMods.TabItemStats
                         doesNotStack: true,
                         formatter: new PercentageFormatter(color: DoesNotStackColor)
                         )
-                }, 
+                },
+                [ItemIndex.ExecuteLowHealthElite] = new List<ItemStat>
+                {
+                    new ItemStat(
+                        formula: count => 1 - 1 / (StackFormula(count, 0.2f) + 1f),
+                        statText: "Execute Threshold",
+                        formatter: new PercentageFormatter(maxValue: 1f)
+                        )
+                },
+                [ItemIndex.TPHealingNova] = new List<ItemStat>
+                {
+                    new ItemStat(
+                        formula: count => StackFormula(count, 1f),
+                        statText: "Number of Pulses",
+                        formatter: new IntFormatter()
+                        ),
+                    new ItemStat(
+                        formula: count => 0.5f,
+                        statText: "Health",
+                        doesNotStack: true,
+                        formatter: new PercentageFormatter(suffix: " HP", color: DoesNotStackColor)
+                        ),
+                },
                 #endregion
 
                 #region Tier 3 Items
@@ -778,9 +805,29 @@ namespace UnosMods.TabItemStats
                 [ItemIndex.BarrierOnOverHeal] = new List<ItemStat>
                 {
                     new ItemStat(
-                        formula: count => StackFormula(count, 0.2f),
-                        statText: "Barrier Overheal"
+                        formula: count => StackFormula(count, 0.5f),
+                        statText: "Overheal (% of healing gained)"
                         )
+                },
+                [ItemIndex.ArmorReductionOnHit] = new List<ItemStat>
+                {
+                    new ItemStat(
+                        formula: count => StackFormula(count, 8f),
+                        statText: "Reduction Duration",
+                        formatter: new FloatFormatter(suffix: "s")
+                        ),
+                    new ItemStat(
+                        formula: count => 5,
+                        statText: "Hits Required",
+                        doesNotStack: true,
+                        formatter: new IntFormatter(color: DoesNotStackColor)
+                        ),
+                    new ItemStat(
+                        formula: count => 60,
+                        statText: "Armor Reduction",
+                        doesNotStack: true,
+                        formatter: new IntFormatter(color: DoesNotStackColor)
+                        ),
                 }, 
                 #endregion
 
@@ -908,6 +955,24 @@ namespace UnosMods.TabItemStats
                     new ItemStat(
                         formula: count => 1 - 0.5f * Mathf.Pow(1f - 0.15f, (count - 1)),
                         statText: "Cooldown Decrease"
+                        )
+                },
+                [ItemIndex.LunarUtilityReplacement] = new List<ItemStat>
+                {
+                    new ItemStat(
+                        formula: count => 1f - Mathf.Pow(1f - 0.25f, count),
+                        statText: "Healing Received"
+                        ),
+                    new ItemStat(
+                        formula: count => StackFormula(count, 3),
+                        statText: "Duration",
+                        formatter: new IntFormatter(suffix: "s")
+                        ),
+                    new ItemStat(
+                        formula: count => 0.3f,
+                        statText: "Move Speed",
+                        doesNotStack: true,
+                        formatter: new PercentageFormatter(color: DoesNotStackColor)
                         )
                 },
                 #endregion

@@ -243,6 +243,37 @@ namespace UnosMods.TabItemStats
                         formatter: new IntFormatter(color: CooldownColor, suffix: "s")
                         )
                 },
+                [EquipmentIndex.Cleanse] = new List<EquipmentStat>
+                {
+                    new EquipmentStat(
+                        value: 20,
+                        statText: "Cooldown",
+                        formatter: new IntFormatter(color: CooldownColor, suffix: "s")
+                        )
+                },
+                [EquipmentIndex.FireBallDash] = new List<EquipmentStat>
+                {
+                    new EquipmentStat(
+                        value: PlayerIsValid() ? PlayerDamage() * 5f : 5f,
+                        statText: "Impact Damage",
+                        formatter: PlayerIsValid() ? new FloatFormatter(color: NeutralColor) : new PercentageFormatter(color: NeutralColor)
+                        ),
+                    new EquipmentStat(
+                        value: PlayerIsValid() ? PlayerDamage() * 8f : 8f,
+                        statText: "Detonation Damage",
+                        formatter: PlayerIsValid() ? new FloatFormatter(color: NeutralColor) : new PercentageFormatter(color: NeutralColor)
+                        ),
+                    new EquipmentStat(
+                        value: 5,
+                        statText: "Duration",
+                        formatter: new IntFormatter(color: CooldownColor, suffix: "s")
+                        ),
+                    new EquipmentStat(
+                        value: 30,
+                        statText: "Cooldown",
+                        formatter: new IntFormatter(color: CooldownColor, suffix: "s")
+                        )
+                },
                 [EquipmentIndex.QuestVolatileBattery] = new List<EquipmentStat>
                 {
                     new EquipmentStat(
