@@ -1,17 +1,12 @@
 ﻿using System;
 using RoR2;
 using BepInEx;
-using BepInEx.Configuration;
 using R2API.Utils;
 using UnityEngine;
 using MonoMod.Cil;
 using Mono.Cecil.Cil;
 using RoR2.UI;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using BepInEx.Logging;
-using System.Reflection;
 
 namespace UnosMods.TabItemStats
 {
@@ -20,7 +15,7 @@ namespace UnosMods.TabItemStats
     public class TabItemStats : BaseUnityPlugin
     {
         public const string PluginName = "TabItemStats";
-        public const string PluginVersion = "1.0.0";
+        public const string PluginVersion = "1.0.1";
         public const string PluginGUID = "com.unordinal.itemtabstats";
         internal new static ManualLogSource Logger { get; } = new ManualLogSource(PluginName);
 

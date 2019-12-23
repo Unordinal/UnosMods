@@ -139,9 +139,9 @@ namespace UnosMods.TabItemStats
                 [ItemIndex.PersonalShield] = new List<ItemStat>
                 {
                     new ItemStat(
-                        formula: count => StackFormula(count, 25),
+                        formula: count => StackFormula(count, 0.08f),
                         statText: "Shields",
-                        formatter: new IntFormatter(suffix: " SP")
+                        formatter: new PercentageFormatter(suffix: " SP")
                         )
                 },
                 [ItemIndex.Medkit] = new List<ItemStat>
@@ -278,6 +278,20 @@ namespace UnosMods.TabItemStats
                         formatter: new FloatFormatter(suffix: "m", color: DoesNotStackColor)
                         ),
                 }, 
+                [ItemIndex.RegenOnKill] = new List<ItemStat>
+                {
+                    new ItemStat(
+                        formula: count => StackFormula(count, 3f),
+                        statText: "Duration",
+                        formatter: new FloatFormatter(suffix: "s")
+                        ),
+                    new ItemStat(
+                        formula: count => 2f,
+                        statText: "Health Regen",
+                        doesNotStack: true,
+                        formatter: new FloatFormatter(suffix: " HP/s", color: DoesNotStackColor)
+                        ),
+                }, 
                 #endregion
 
                 #region Tier 2 Items
@@ -352,21 +366,26 @@ namespace UnosMods.TabItemStats
                 [ItemIndex.AttackSpeedOnCrit] = new List<ItemStat>
                 {
                     new ItemStat(
-                        formula: count => StackFormula(count, 0.3f),
+                        formula: count => StackFormula(count, 0.24f, 0.36f),
                         statText: "Max Attack Speed"
                         ),
                     new ItemStat(
-                        formula: count => 0.1f,
+                        formula: count => 0.12f,
                         statText: "Attack Speed on Critical",
                         doesNotStack: true,
                         formatter: new PercentageFormatter(color: DoesNotStackColor)
                         ),
                     new ItemStat(
+                        formula: count => 3f,
+                        statText: "Duration",
+                        doesNotStack: true,
+                        formatter: new FloatFormatter(suffix: "s", color: DoesNotStackColor)
+                        ),
+                    new ItemStat(
                         formula: count => 0.05f,
                         statText: "Critical Chance",
                         doesNotStack: true,
-                        formatter: new PercentageFormatter(color: DoesNotStackColor),
-                        modifiers: Modifiers.Luck
+                        formatter: new PercentageFormatter(color: DoesNotStackColor)
                         )
                 },
                 [ItemIndex.SprintOutOfCombat] = new List<ItemStat>
@@ -572,6 +591,39 @@ namespace UnosMods.TabItemStats
                         formatter: new PercentageFormatter(suffix: " HP", color: DoesNotStackColor)
                         ),
                 },
+                [ItemIndex.BonusGoldPackOnKill] = new List<ItemStat>
+                {
+                    new ItemStat(
+                        formula: count => StackFormula(count, 0.04f),
+                        statText: "Treasure Chance",
+                        formatter: new PercentageFormatter()
+                        ),
+                    new ItemStat(
+                        formula: count => 25,
+                        statText: "Base Gold",
+                        doesNotStack: true,
+                        formatter: new IntFormatter(prefix: "$", color: DoesNotStackColor)
+                        ),
+                },
+                [ItemIndex.Thorns] = new List<ItemStat>
+                {
+                    new ItemStat(
+                        formula: count => StackFormula(count, 2, 5),
+                        statText: "Targets Hit",
+                        formatter: new IntFormatter()
+                        ),
+                    new ItemStat(
+                        formula: count => StackFormula(count, 10f, 25f),
+                        statText: "Radius",
+                        formatter: new FloatFormatter(suffix: "m")
+                        ),
+                    new ItemStat(
+                        formula: count => 1.6f,
+                        statText: "Damage",
+                        doesNotStack: true,
+                        formatter: new PercentageFormatter(color: DoesNotStackColor)
+                        ),
+                },
                 #endregion
 
                 #region Tier 3 Items
@@ -630,14 +682,14 @@ namespace UnosMods.TabItemStats
                         formatter: new IntFormatter(suffix: "s")
                         ),
                     new ItemStat(
-                        formula: count => 0.1f,
+                        formula: count => 0.07f,
                         statText: "Spawn Chance",
                         doesNotStack: true,
                         formatter: new PercentageFormatter(maxValue: 1f, color: DoesNotStackColor),
                         modifiers: Modifiers.Luck
                         ),
                     new ItemStat(
-                        formula: count => 5.0f,
+                        formula: count => 15f,
                         statText: "Ghost Damage",
                         doesNotStack: true,
                         formatter: new PercentageFormatter(color: DoesNotStackColor)
@@ -784,7 +836,7 @@ namespace UnosMods.TabItemStats
                 [ItemIndex.KillEliteFrenzy] = new List<ItemStat>
                 {
                     new ItemStat(
-                        formula: count => StackFormula(count, 2, 3),
+                        formula: count => StackFormula(count, 4),
                         statText: "Frenzy Duration",
                         formatter: new IntFormatter(suffix: "s")
                         ),
@@ -806,7 +858,8 @@ namespace UnosMods.TabItemStats
                 {
                     new ItemStat(
                         formula: count => StackFormula(count, 0.5f),
-                        statText: "Overheal (% of healing gained)"
+                        statText: "Overheal (% of healing gained)",
+                        formatter: new PercentageFormatter()
                         )
                 },
                 [ItemIndex.ArmorReductionOnHit] = new List<ItemStat>
@@ -827,6 +880,24 @@ namespace UnosMods.TabItemStats
                         statText: "Armor Reduction",
                         doesNotStack: true,
                         formatter: new IntFormatter(color: DoesNotStackColor)
+                        ),
+                }, 
+                [ItemIndex.LaserTurbine] = new List<ItemStat>
+                {
+                    new ItemStat(
+                        formula: count => StackFormula(count, 3f),
+                        statText: "Hit Damage",
+                        formatter: new PercentageFormatter()
+                        ),
+                    new ItemStat(
+                        formula: count => StackFormula(count, 10f),
+                        statText: "Explosion Damage",
+                        formatter: new PercentageFormatter()
+                        ),
+                    new ItemStat(
+                        formula: count => StackFormula(count, 3f),
+                        statText: "Return Damage",
+                        formatter: new PercentageFormatter()
                         ),
                 }, 
                 #endregion
@@ -856,7 +927,7 @@ namespace UnosMods.TabItemStats
                         formula: count => 30f,
                         statText: "Summon Timer",
                         doesNotStack: true,
-                        formatter: new PercentageFormatter(suffix: "s", color: DoesNotStackColor)
+                        formatter: new FloatFormatter(suffix: "s", color: DoesNotStackColor)
                         ),
                     new ItemStat(
                         formula: count => 3f,
@@ -896,6 +967,72 @@ namespace UnosMods.TabItemStats
                         formatter: new FloatFormatter(suffix: "s", color: DoesNotStackColor)
                         )
                 }, 
+                [ItemIndex.NovaOnLowHealth] = new List<ItemStat>
+                {
+                    new ItemStat(
+                        formula: count => Mathf.Pow(1f - 0.5f, count),
+                        statText: "Recharge Time",
+                        formatter: new FloatFormatter(suffix: "s", places: 3)
+                        ),
+                    new ItemStat(
+                        formula: count => 60f,
+                        statText: "Explosion Damage",
+                        doesNotStack: true,
+                        formatter: new PercentageFormatter(color: DoesNotStackColor)
+                        ),
+                new ItemStat(
+                        formula: count => 0.25f,
+                        statText: "Health Threshold",
+                        doesNotStack: true,
+                        formatter: new PercentageFormatter(suffix: " HP", color: DoesNotStackColor)
+                        ),
+                }, 
+                [ItemIndex.Pearl] = new List<ItemStat>
+                {
+                    new ItemStat(
+                        formula: count => StackFormula(count, 0.1f),
+                        statText: "Max Health",
+                        formatter: new PercentageFormatter(prefix: "+", suffix: " HP")
+                        )
+                }, 
+                [ItemIndex.ShinyPearl] = new List<ItemStat>
+                {
+                    new ItemStat(
+                        formula: count => StackFormula(count, 0.1f),
+                        statText: "Max Health",
+                        formatter: new PercentageFormatter(prefix: "+", suffix: " HP")
+                        ),
+                new ItemStat(
+                        formula: count => StackFormula(count, 0.1f),
+                        statText: "Health Regen",
+                        formatter: new PercentageFormatter(prefix: "+", suffix: " HP")
+                        ),
+                new ItemStat(
+                        formula: count => StackFormula(count, 0.1f),
+                        statText: "Move Speed",
+                        formatter: new PercentageFormatter(prefix: "+")
+                        ),
+                new ItemStat(
+                        formula: count => StackFormula(count, 0.1f),
+                        statText: "Damage",
+                        formatter: new PercentageFormatter(prefix: "+")
+                        ),
+                new ItemStat(
+                        formula: count => StackFormula(count, 0.1f),
+                        statText: "Attack Speed",
+                        formatter: new PercentageFormatter(prefix: "+")
+                        ),
+                new ItemStat(
+                        formula: count => StackFormula(count, 0.1f),
+                        statText: "Crit. Chance",
+                        formatter: new PercentageFormatter(prefix: "+")
+                        ),
+                new ItemStat(
+                        formula: count => StackFormula(count, 0.1f),
+                        statText: "Armor Multiplier",
+                        formatter: new PercentageFormatter(prefix: "+")
+                        ),
+                }, 
                 #endregion
 
                 #region Lunar Items
@@ -915,7 +1052,7 @@ namespace UnosMods.TabItemStats
                 [ItemIndex.GoldOnHit] = new List<ItemStat>
                 {
                     new ItemStat(
-                        formula: count => count* 2f * Run.instance?.difficultyCoefficient ?? 1f,
+                        formula: count => count * 2f * Run.instance?.difficultyCoefficient ?? 1f,
                         statText: "Gold on Hit",
                         formatter: new FloatFormatter()
                         ),
@@ -975,6 +1112,26 @@ namespace UnosMods.TabItemStats
                         formatter: new PercentageFormatter(color: DoesNotStackColor)
                         )
                 },
+                [ItemIndex.LunarPrimaryReplacement] = new List<ItemStat>
+                {
+                    new ItemStat(
+                        formula: count => StackFormula(count, 12),
+                        statText: "Charges",
+                        formatter: new IntFormatter()
+                        ),
+                    new ItemStat(
+                        formula: count => StackFormula(count, 2f),
+                        statText: "Reload Time",
+                        formatter: new FloatFormatter(suffix: "s")
+                        ),
+                    new ItemStat(
+                        formula: count => 1.2f,
+                        statText: "Detonation Damage",
+                        doesNotStack: true,
+                        formatter: new PercentageFormatter(color: DoesNotStackColor)
+                        )
+                },
+                [ItemIndex.LunarTrinket] = new List<ItemStat>(),
                 #endregion
 
                 #region No Tier

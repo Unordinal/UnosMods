@@ -21,6 +21,7 @@ namespace UnosMods.DebugCheats
         List<PickupIndex> tier2Drops = new List<PickupIndex>();
         List<PickupIndex> tier3Drops = new List<PickupIndex>();
         List<PickupIndex> lunarDrops = new List<PickupIndex>();
+        List<PickupIndex> bossDrops = new List<PickupIndex>();
         List<PickupIndex> allDrops = new List<PickupIndex>();
         List<PickupIndex> equipmentDrops = new List<PickupIndex>();
         List<PickupIndex> lunarEquipment = new List<PickupIndex>();
@@ -41,13 +42,14 @@ namespace UnosMods.DebugCheats
         {
             if (Run.instance)
             {
-                if (!tier1Drops.Any() || !tier2Drops.Any() || !tier3Drops.Any() || !lunarDrops.Any() || !allDrops.Any() || !equipmentDrops.Any())
+                if (!tier1Drops.Any() || !tier2Drops.Any() || !tier3Drops.Any() || !lunarDrops.Any() || !allDrops.Any() || !equipmentDrops.Any() || !bossDrops.Any())
                 {
                     tier1Drops = Run.instance.availableTier1DropList;
                     tier2Drops = Run.instance.availableTier2DropList;
                     tier3Drops = Run.instance.availableTier3DropList;
                     lunarDrops = Run.instance.availableLunarDropList.Where(t => t.equipmentIndex == EquipmentIndex.None).ToList();
-                    allDrops = tier1Drops.Concat(tier2Drops.Concat(tier3Drops)).ToList();
+                    bossDrops = Run.instance.availableBossDropList;
+                    allDrops = tier1Drops.Concat(tier2Drops.Concat(tier3Drops.Concat(bossDrops))).ToList();
                     equipmentDrops = Run.instance.availableEquipmentDropList;
                     lunarEquipment = Run.instance.availableLunarDropList.Where(t => t.equipmentIndex != EquipmentIndex.None).ToList();
                 }

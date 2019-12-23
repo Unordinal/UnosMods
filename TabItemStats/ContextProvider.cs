@@ -10,16 +10,14 @@ namespace UnosMods.TabItemStats
     {
         public static CharacterBody GetLocalBody(int userId = 0)
         {
-            if (userId == 0)
-                return LocalUserManager.GetFirstLocalUser()?.currentNetworkUser?.GetCurrentBody();
-            return LocalUserManager.FindLocalUser(userId)?.currentNetworkUser?.GetCurrentBody();
+            return userId == 0
+                ? LocalUserManager.GetFirstLocalUser()?.currentNetworkUser?.GetCurrentBody()
+                : LocalUserManager.FindLocalUser(userId)?.currentNetworkUser?.GetCurrentBody();
         }
         public static bool PlayerIsValid(int userId = 0)
         {
             var body = GetLocalBody(userId);
-            if (body)
-                return true;
-            return false;
+            return body;
         }
 
         public static int ItemStacks(ItemIndex item, int userId = 0) =>

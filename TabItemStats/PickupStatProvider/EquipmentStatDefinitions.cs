@@ -238,7 +238,7 @@ namespace UnosMods.TabItemStats
                         formatter: new IntFormatter(suffix: "s")
                         ),
                     new EquipmentStat(
-                        value: 100,
+                        value: 45,
                         statText: "Cooldown",
                         formatter: new IntFormatter(color: CooldownColor, suffix: "s")
                         )
@@ -270,6 +270,24 @@ namespace UnosMods.TabItemStats
                         ),
                     new EquipmentStat(
                         value: 30,
+                        statText: "Cooldown",
+                        formatter: new IntFormatter(color: CooldownColor, suffix: "s")
+                        )
+                },
+                [EquipmentIndex.GainArmor] = new List<EquipmentStat>
+                {
+                    new EquipmentStat(
+                        value: 500,
+                        statText: "Armor Gain",
+                        formatter: new IntFormatter()
+                        ),
+                    new EquipmentStat(
+                        value: 5,
+                        statText: "Duration",
+                        formatter: new IntFormatter(suffix: "s")
+                        ),
+                    new EquipmentStat(
+                        value: 45,
                         statText: "Cooldown",
                         formatter: new IntFormatter(color: CooldownColor, suffix: "s")
                         )
