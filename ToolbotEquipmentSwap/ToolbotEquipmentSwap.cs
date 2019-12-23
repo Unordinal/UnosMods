@@ -1,6 +1,5 @@
 ﻿//#define DEBUG
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -13,8 +12,6 @@ using MiniRpcLib.Func;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using EntityStates.Toolbot;
-using System.Reflection;
-using System.Threading.Tasks;
 
 namespace UnosMods.ToolbotEquipmentSwap
 {
@@ -31,16 +28,16 @@ namespace UnosMods.ToolbotEquipmentSwap
         public IRpcAction<bool> CmdSwitchEquipmentSlots { get; private set; }
         public IRpcFunc<bool, TESClientModConfig> CmdGetClientModConfig { get; private set; }
 
-        public static ConfigWrapper<string> equipSwapKeyString;
-        public static ConfigWrapper<bool> stopAutoSwap;
+        public static ConfigEntry<string> equipSwapKeyString;
+        public static ConfigEntry<bool> stopAutoSwap;
         public static KeyCode? equipSwapKey;
 
         public static Dictionary<NetworkUser, TESClientModConfig> usersModConfig = new Dictionary<NetworkUser, TESClientModConfig>();
 
         internal void Awake()
         {
-            equipSwapKeyString = Config.Wrap("ToolbotEquipmentSwap", "SwapKey", "The key to swap between MUL-T's equipment slots. (Default: X)", KeyCode.X.ToString());
-            stopAutoSwap = Config.Wrap("ToolbotEquipmentSwap", "StopAutoSwap", "Whether to stop the equipment slot changing when using MUL-T's Retool ability. (Default: true)", true);
+            equipSwapKeyString = Config.Bind("ToolbotEquipmentSwap", "SwapKey", KeyCode.X.ToString(), "The key to swap between MUL-T's equipment slots. (Default: X)");
+            stopAutoSwap = Config.Bind("ToolbotEquipmentSwap", "StopAutoSwap", true, "Whether to stop the equipment slot changing when using MUL-T's Retool ability. (Default: true)");
 
             equipSwapKey = GetKey(equipSwapKeyString);
             if (equipSwapKey == null)
@@ -216,7 +213,7 @@ namespace UnosMods.ToolbotEquipmentSwap
             return SurvivorCatalog.FindSurvivorDefFromBody(bodyPrefab)?.survivorIndex == index;
         }
 
-        public KeyCode? GetKey(ConfigWrapper<string> param)
+        public KeyCode? GetKey(ConfigEntry<string> param)
         {
             if (!Enum.TryParse(param.Value, out KeyCode result))
                 return null;

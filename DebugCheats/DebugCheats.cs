@@ -204,7 +204,7 @@ namespace UnosMods.DebugCheats
                 if (args.Count > 0)
                     bool.TryParse(args[0], out includeInvalid);
 
-                var sceneNamePadding = SceneCatalog.allSceneDefs.Aggregate((max, cur) => max.sceneName.Length > cur.sceneName.Length ? max : cur).sceneName.Length + 2;
+                var sceneNamePadding = SceneCatalog.allSceneDefs.Aggregate((max, cur) => max.baseSceneName.Length > cur.baseSceneName.Length ? max : cur).baseSceneName.Length + 2;
                 var nameTokenPadding = Language.GetString(SceneCatalog.allSceneDefs.Aggregate((max, cur) => Language.GetString(max.nameToken).Length > Language.GetString(cur.nameToken).Length ? max : cur).nameToken).Length + 2; // this is a mess of a line, ey?
                 /*string codeNameHeader = PadBoth("Code name", sceneNamePadding);
                 string sceneTitleHeader = PadBoth("Scene title", nameTokenPadding);*/ // Not monospace console lulllllll bleh
@@ -212,7 +212,7 @@ namespace UnosMods.DebugCheats
                 Debug.Log("Code name: Scene title");
                 Debug.Log(new string('-', sceneNamePadding + nameTokenPadding));
                 foreach (var scene in SceneCatalog.allSceneDefs.Where(x => includeInvalid || (x.sceneType == SceneType.Stage || x.sceneType == SceneType.Intermission)))
-                    Debug.Log($"{scene.sceneName}: {(!Language.GetString(scene.nameToken).IsNullOrWhiteSpace() ? Language.GetString(scene.nameToken) : scene.sceneName)}");
+                    Debug.Log($"{scene.baseSceneName}: {(!Language.GetString(scene.nameToken).IsNullOrWhiteSpace() ? Language.GetString(scene.nameToken) : scene.baseSceneName)}");
             }
             catch (Exception exc)
             {

@@ -18,7 +18,7 @@ namespace UnosMods.ToolbotEquipmentSwap
     {
         public const string PluginName = "Drop Items";
         public const string PluginGUID = "com.unordinal.dropitems";
-        public const string PluginVersion = "1.0.0";
+        public const string PluginVersion = "1.0.1";
         private const string ModRpcId = "UnosMods.DropItems";
 
         private static MiniRpcLib.Action.IRpcAction<DropItemsMessage> CmdDropItem;
@@ -28,7 +28,7 @@ namespace UnosMods.ToolbotEquipmentSwap
 
         public DropItems()
         {
-            var configDropItemKey = Config.Wrap("DropItems", "DropItemKey", "Key code for dropping the item that was last picked up. (Default: G)", KeyCode.G.ToString());
+            var configDropItemKey = Config.Bind("DropItems", "DropItemKey", KeyCode.G.ToString(), "Key code for dropping the item that was last picked up. (Default: G)");
             dropItemKey = GetKey(configDropItemKey);
             if (dropItemKey == null)
                 Logger.LogError($"Invalid keycode '{configDropItemKey}' specified for DropItemKey!");
@@ -54,10 +54,10 @@ namespace UnosMods.ToolbotEquipmentSwap
         private void GenericPickupController_GrantEquipment(On.RoR2.GenericPickupController.orig_GrantEquipment orig, GenericPickupController self, CharacterBody body, Inventory inventory)
         {
             orig(self, body, inventory);
-            LastPickedUpItem[inventory] = new PickupIndex(inventory.GetEquipmentIndex());
+            LastPickedUpItem[inventory] = PickupCatalog.FindPickupIndex(inventory.GetEquipmentIndex());
         }
 
-        private KeyCode? GetKey(ConfigWrapper<string> param)
+        private KeyCode? GetKey(ConfigEntry<string> param)
         {
             if (!Enum.TryParse(param.Value, out KeyCode result))
                 return null;
@@ -81,15 +81,11 @@ namespace UnosMods.ToolbotEquipmentSwap
                 return;
             }
 
-            PickupIndex pickupIndex;
-            if (LastPickedUpItem[inv].equipmentIndex != EquipmentIndex.None)
-                pickupIndex = new PickupIndex(LastPickedUpItem[inv].equipmentIndex);
-            else
-                pickupIndex = new PickupIndex(LastPickedUpItem[inv].itemIndex);
+            PickupDef pickupDef = PickupCatalog.GetPickupDef(LastPickedUpItem[inv]);
 
-            Logger.LogInfo($"Dropping item '{pickupIndex}' for host '{player.networkUser?.userName}'");
+            Logger.LogInfo($"Dropping item '{pickupDef.internalName}' for host '{player.networkUser?.userName}'");
             LastPickedUpItem[inv] = PickupIndex.none;
-            DropItem(player, pickupIndex);
+            DropItem(player, pickupDef);
         }
 
         public void DoDropItem(NetworkUser user, MessageBase message)
@@ -102,7 +98,7 @@ namespace UnosMods.ToolbotEquipmentSwap
                 Logger.LogError($"Network User '{user.userName}' has no body.");
                 return;
             }
-
+            
             var inv = master.inventory;
             if (inv == null || !LastPickedUpItem.ContainsKey(inv) || LastPickedUpItem[inv] == PickupIndex.none || !inv.itemAcquisitionOrder.Any())
             {
@@ -110,18 +106,14 @@ namespace UnosMods.ToolbotEquipmentSwap
                 return;
             }
 
-            PickupIndex pickupIndex;
-            if (LastPickedUpItem[inv].equipmentIndex != EquipmentIndex.None)
-                pickupIndex = new PickupIndex(LastPickedUpItem[inv].equipmentIndex);
-            else
-                pickupIndex = new PickupIndex(LastPickedUpItem[inv].itemIndex);
+            PickupDef pickupDef = PickupCatalog.GetPickupDef(LastPickedUpItem[inv]);
 
-            Logger.LogInfo($"Dropping item '{pickupIndex}' for client '{user.userName}'");
+            Logger.LogInfo($"Dropping item '{pickupDef.internalName}' for client '{user.userName}'");
             LastPickedUpItem[inv] = PickupIndex.none;
-            DropItem(user.masterController, pickupIndex);
+            DropItem(user.masterController, pickupDef);
         }
 
-        public bool DropItem(PlayerCharacterMasterController player, PickupIndex pickupIndex)
+        public bool DropItem(PlayerCharacterMasterController player, PickupDef pickupDef)
         {
             if (!NetworkServer.active)
             {
@@ -133,22 +125,22 @@ namespace UnosMods.ToolbotEquipmentSwap
             if (inv == null)
                 return false;
             
-            Logger.LogDebug($"Dropping {pickupIndex} (equip: {pickupIndex.equipmentIndex}, item: {pickupIndex.itemIndex})");
-            if (pickupIndex.equipmentIndex != EquipmentIndex.None)
+            Logger.LogDebug($"Dropping {Language.GetString(pickupDef.internalName)} (equip: {pickupDef.equipmentIndex}, item: {pickupDef.itemIndex})");
+            if (pickupDef.equipmentIndex != EquipmentIndex.None)
             {
-                if (inv.GetEquipmentIndex() != pickupIndex.equipmentIndex)
+                if (inv.GetEquipmentIndex() != pickupDef.equipmentIndex)
                     return false;
                 inv.SetEquipmentIndex(EquipmentIndex.None);
             }
             else
             {
-                if (inv.GetItemCount(pickupIndex.itemIndex) <= 0)
+                if (inv.GetItemCount(pickupDef.itemIndex) <= 0)
                     return false;
-                inv.RemoveItem(pickupIndex.itemIndex, 1);
+                inv.RemoveItem(pickupDef.itemIndex, 1);
             }
             
             var transform = player.master.GetBody().coreTransform;
-            PickupDropletController.CreatePickupDroplet(pickupIndex, 
+            PickupDropletController.CreatePickupDroplet(pickupDef.pickupIndex, 
                                                         transform.position, 
                                                         transform.up * 15f + transform.forward * 10f);
             return true;

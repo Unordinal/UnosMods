@@ -12,10 +12,9 @@ namespace UnosMods.StartingSpeedBuff
     {
         public const string PluginName = "Starting Speed Buff";
         public const string PluginGUID = "com.unordinal.startingspeedbuff";
-        public const string PluginVersion = "1.0.0";
+        public const string PluginVersion = "1.0.1";
 
-        //private static ConfigWrapper<int> speedBuffPercent;
-        private static ConfigWrapper<int> keepBuffUntilStage;
+        private static ConfigEntry<int> keepBuffUntilStage;
         private bool ShouldBeBuffed
         {
             get
@@ -69,8 +68,7 @@ namespace UnosMods.StartingSpeedBuff
 
         private void InitConfig()
         {
-            //speedBuffPercent = Config.Wrap("StartingSpeedBuff", "SpeedBuffPercent", "How much speed the buff grants, as a percent. (1-100, Default: 25)", 25);
-            keepBuffUntilStage = Config.Wrap("StartingSpeedBuff", "KeepBuffUntilStage", "Keeps the buff until the given stage. (2-20, Default: 3)", 3);
+            keepBuffUntilStage = Config.Bind("StartingSpeedBuff", "KeepBuffUntilStage", 3, "Keeps the buff until the given stage. (2-20, Default: 3)");
         }
 
         /*private static int SpeedBuffPercent

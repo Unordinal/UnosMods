@@ -25,27 +25,27 @@ namespace UnosMods.StartingItemsPicker
     {
         public const string PluginGUID = "com.unordinal.startingitemspicker";
         public const string PluginName = "Starting Items Picker";
-        public const string PluginVersion = "1.0.0";
+        public const string PluginVersion = "1.0.1";
         private const string PluginRpcGUID = "UnosMods.StartingItemsPicker";
-        public static ConfigWrapper<ushort> NumberOfItems { get; private set; }
-        public static ConfigWrapper<ushort> AllowedStack { get; private set; }
+        public static ConfigEntry<ushort> NumberOfItems { get; private set; }
+        public static ConfigEntry<ushort> AllowedStack { get; private set; }
 
         IRpcAction<Action<NetworkWriter>> NetDisplayItemPickerAction;
         IRpcAction<Action<NetworkWriter>> NetItemsPickedAction;
 
         public void Awake()
         {
-            NumberOfItems = Config.Wrap<ushort>(
+            NumberOfItems = Config.Bind<ushort>(
                 "Settings", 
                 "NumberOfItems", 
-                "The number of items players can pick at the start of the run. (Default: 2)", 
-                2
+                2,
+                "The number of items players can pick at the start of the run. (Default: 2)"
                 );
-            AllowedStack = Config.Wrap<ushort>(
+            AllowedStack = Config.Bind<ushort>(
                 "Settings", 
                 "AllowedStack", 
-                "How many items of the same type players can receive. (Default: 1)", 
-                1
+                1,
+                "How many items of the same type players can receive. (Default: 1)"
                 );
 
             var miniRpc = MiniRpc.CreateInstance(PluginRpcGUID);
@@ -68,6 +68,7 @@ namespace UnosMods.StartingItemsPicker
         }
 
         // Attributes for clarity only, unaffects .dll when compiled with VS.
+
         [Server]
         public void CallNetDisplayItemPicker(ushort numberOfItems, ushort allowedStack, List<ItemIndex> availableItems)
         {

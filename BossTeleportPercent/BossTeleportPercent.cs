@@ -1,38 +1,53 @@
-﻿using System;
-using System.Collections;
-using BepInEx;
+﻿using BepInEx;
 using BepInEx.Configuration;
-using R2API.Utils;
-using UnityEngine;
 
 namespace UnosMods.BossTeleportPercent
 {
     [BepInDependency("com.bepis.r2api")]
-    [BepInPlugin("com.unordinal.bossteleportpercent", "Boss Teleport Percent", "1.0.0")]
+    [BepInPlugin("com.unordinal.bossteleportpercent", "Boss Teleport Percent", "1.0.1")]
 
     public class BossTeleportPercent : BaseUnityPlugin
     {
-        private static ConfigWrapper<float> BossKillPercent;
+        private static ConfigEntry<float> ChargePercent;
         //private static bool running_debug = false;
         
         public void Awake()
         {
-            BossKillPercent = Config.Wrap(
-                "BossKillPercent",
-                "BossKillPercent",
-                $"Set the teleporter percentage gained by killing the teleporter boss (0-100, default is 25)",
-                25f);
+            ChargePercent = Config.Bind(
+                "ChargePercent",
+                "ChargePercent",
+                25f,
+                $"Set the teleporter percentage gained by killing the teleporter boss (0-100, default is 25)");
             On.RoR2.BossGroup.OnDefeatedServer += (orig, self) =>
             {
                 orig(self);
                 if (RoR2.TeleporterInteraction.instance.isCharging)
                 {
-                    if (RoR2.TeleporterInteraction.instance.remainingChargeTimer - (constrainedPercent * 0.9f) <= 0f)
+                    if (RoR2.TeleporterInteraction.instance.remainingChargeTimer - (ConstrainedPercent * 0.9f) <= 0f)
                         RoR2.TeleporterInteraction.instance.remainingChargeTimer = 0f;
                     else
-                        RoR2.TeleporterInteraction.instance.remainingChargeTimer -= (constrainedPercent * 0.9f);
+                        RoR2.TeleporterInteraction.instance.remainingChargeTimer -= (ConstrainedPercent * 0.9f);
                 }
             };
+        }
+
+        private float ConstrainedPercent
+        {
+            get
+            {
+                try
+                {
+                    if (ChargePercent.Value < 0f)
+                        return 0f;
+                    if (ChargePercent.Value > 100f)
+                        return 100f;
+                    return ChargePercent.Value;
+                }
+                catch
+                {
+                    return 25f;
+                }
+            }
         }
 
         /*public void Update()
@@ -60,24 +75,5 @@ namespace UnosMods.BossTeleportPercent
                 yield return new WaitForSeconds(1f);
             }
         }*/
-
-        private float constrainedPercent
-        {
-            get
-            {
-                try
-                {
-                    if (BossKillPercent.Value < 0f)
-                        return 0f;
-                    if (BossKillPercent.Value > 100f)
-                        return 100f;
-                    return BossKillPercent.Value;
-                }
-                catch
-                {
-                    return 25f;
-                }
-            }
-        }
     }
 }

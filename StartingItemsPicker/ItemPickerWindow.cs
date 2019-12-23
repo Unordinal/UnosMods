@@ -1,7 +1,6 @@
 ﻿using RoR2;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
 namespace UnosMods.StartingItemsPicker
@@ -13,6 +12,7 @@ namespace UnosMods.StartingItemsPicker
         public Func<string> GetDescription { get; set; }
         public Transform Parent { get; set; }
 
+        [SuppressMessage("Code Quality", "IDE0051:Remove unused private members", Justification = "It's actually used.")]
         private void Awake()
         {
             Parent = RoR2Application.instance.mainCanvas.transform;
