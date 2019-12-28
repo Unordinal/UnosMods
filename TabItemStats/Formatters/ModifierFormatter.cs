@@ -1,6 +1,5 @@
 ﻿using RoR2;
 using System.Globalization;
-using static UnosUtilities.StyleCatalog;
 
 namespace UnosMods.TabItemStats.Formatters
 {
