@@ -41,8 +41,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EngineerPlus", "EngineerPlu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrefabInfoExporter", "PrefabInfoExporter\PrefabInfoExporter.csproj", "{51050863-653E-45B4-813B-C0119282B250}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "R2APIModifications", "R2APIModifications\R2APIModifications.csproj", "{50FA3170-BF00-4082-8885-DC4F7041F037}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AIBlacklister", "AIBlacklister\AIBlacklister.csproj", "{F3A3C93C-7CF3-40C0-9D00-435581F6F2AD}"
 EndProject
 Global
@@ -111,10 +109,6 @@ Global
 		{51050863-653E-45B4-813B-C0119282B250}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{51050863-653E-45B4-813B-C0119282B250}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{51050863-653E-45B4-813B-C0119282B250}.Release|Any CPU.Build.0 = Release|Any CPU
-		{50FA3170-BF00-4082-8885-DC4F7041F037}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{50FA3170-BF00-4082-8885-DC4F7041F037}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{50FA3170-BF00-4082-8885-DC4F7041F037}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{50FA3170-BF00-4082-8885-DC4F7041F037}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F3A3C93C-7CF3-40C0-9D00-435581F6F2AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F3A3C93C-7CF3-40C0-9D00-435581F6F2AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F3A3C93C-7CF3-40C0-9D00-435581F6F2AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
