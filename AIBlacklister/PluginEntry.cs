@@ -133,8 +133,6 @@ namespace AIBlacklister
                         GiveRandomNonBlacklistEquipment(inv);
                     }
                 });
-
-                Logger.LogDebug($"Successfully hooked {nameof(ScavengerItemGranter_Start)}.");
             }
             else
             {
