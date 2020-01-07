@@ -11,3 +11,6 @@ dotnet_style_qualification_for_property = false:none
 
 # IDE0003: Remove qualification
 dotnet_style_qualification_for_event = false:none
+
+# IDE0002: Simplify Member Access
+dotnet_diagnostic.IDE0002.severity = none

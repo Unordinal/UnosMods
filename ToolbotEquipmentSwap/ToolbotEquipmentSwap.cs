@@ -22,7 +22,7 @@ namespace UnosMods.ToolbotEquipmentSwap
     {
         public const string PluginName = "ToolbotEquipmentSwap";
         public const string PluginGUID = "com.unordinal.toolbotequipmentswap";
-        public const string PluginVersion = "1.0.1";
+        public const string PluginVersion = "1.0.2";
         private const string PluginRpcGUID = "UnosMods.ToolbotEquipmentSwap";
 
         public IRpcAction<bool> CmdSwitchEquipmentSlots { get; private set; }

@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using RoR2;
 using Unordinal.InventoryStats.Stats;
 using static RoR2.ColorCatalog;
 using static Unordinal.InventoryStats.Stats.PickupStatsDefinitions;
-using static Unordinal.StyleCatalog;
 
 namespace Unordinal.InventoryStats.Providers
 {
@@ -36,7 +34,7 @@ namespace Unordinal.InventoryStats.Providers
                     InventoryStats.HideNonStackingStats                             // - User preference is to hide non-stacking stats.
                     && !stat.Stacks                                                 // - The stat doesn't stack.
                     && !ContextProvider.PlayerHasModifyingItems(stat.Modifiers);    // - Player doesn't have any items that modify the stat (ex: clover modifying a proc. chance that doesn't stack should still show)
-
+                
                 if (shouldSkipStat) // If the current stat doesn't stack and the user preference is to hide these, skip it.
                     continue;
                 
@@ -67,73 +65,6 @@ namespace Unordinal.InventoryStats.Providers
 
             if (pickupDef.itemIndex != ItemIndex.None)
                 fullStatText += $"<br></style><align=right>({count} stack{(count > 1 ? "s" : "")})"; // Appends the item stack count to the end and aligns it to the right (appending an 's' for plural count if needed)
-
-            return fullStatText;
-        }
-
-        private static string GetStatsForItem(ItemIndex item, int count = 1)
-        {
-            var itemStats = ItemStatDefs.ContainsKey(item) ? ItemStatDefs[item] : null;
-            if (itemStats is null) return "Not Implemented!".Colorize(ColorIndex.Error.ToHex());
-
-            string fullStatText = "</color>"; // Removes extraneous styling.
-            foreach (var stat in itemStats)
-            {
-                if (InventoryStats.HideNonStackingStats && !stat.Stacks)
-                    continue;
-
-                if (stat.Formula != null)
-                {
-                    fullStatText += $"<align=left>{stat.Text}";
-                    float statValue = stat.Formula(count) + stat.GetSubStats(count).Sum();
-                    string statValueStr = stat.Format(statValue);
-
-                    var subStatsValues = stat.GetSubStats(count).Zip(stat.Modifiers, Tuple.Create);
-                    statValueStr += stat.FormatSubStats(count);
-
-                    fullStatText += $": {statValueStr}";
-                }
-                else
-                {
-                    fullStatText += $"<align=left>{stat.Text.Colorize(ColorNote)}";
-                }
-
-                fullStatText += "\n";
-            }
-            fullStatText = fullStatText.Trim();
-            fullStatText += $"<br></style><align=right>({count} stack{(count > 1 ? "s" : "")})";
-
-            return fullStatText;
-        }
-
-        private static string GetStatsForEquipment(EquipmentIndex equip)
-        {
-            var equipStats = EquipmentStatDefs.ContainsKey(equip) ? EquipmentStatDefs[equip] : null;
-            if (equipStats is null) return "Not Implemented!".Colorize(ColorIndex.Error.ToHex());
-
-            string fullStatText = "</style>"; // Removes extraneous styling.
-            foreach (var stat in equipStats)
-            {
-                if (stat.Formula != null)
-                {
-                    fullStatText += $"<align=left>{stat.Text}";
-                    float statValue = stat.GetInitialStat() + stat.GetSubStats().Sum();
-                    string statValueStr = stat.Format(statValue);
-
-                    var subStatsValues = stat.GetSubStats().Zip(stat.Modifiers, Tuple.Create);
-
-                    statValueStr += stat.FormatSubStats();
-
-                    fullStatText += $": {statValueStr}";
-                }
-                else
-                {
-                    fullStatText += $"<align=left>{stat.Text.Colorize(ColorNote)}";
-                }
-
-                fullStatText += "\n";
-            }
-            fullStatText = fullStatText.Trim();
 
             return fullStatText;
         }
