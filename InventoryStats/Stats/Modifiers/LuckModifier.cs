@@ -1,5 +1,6 @@
 ﻿using RoR2;
 using Unordinal.InventoryStats.Formatters;
+using Unordinal.InventoryStats.Providers;
 using static Unordinal.StyleCatalog;
 
 namespace Unordinal.InventoryStats.Stats.Modifiers
@@ -18,6 +19,11 @@ namespace Unordinal.InventoryStats.Stats.Modifiers
                 name: "Luck",
                 modifyingIndices: ModifyingIndices,
                 color: StyleIndex.cIsUtility.ToHex());
+        }
+
+        public static int GetCount()
+        {
+            return ContextProvider.GetPickupCount(Instance.ModifyingIndices);
         }
     }
 }

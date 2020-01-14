@@ -10,17 +10,6 @@ namespace Unordinal.InventoryStats.Stats.Modifiers
     public class TreasureCacheModifier : StatModifier
     {
         public static PickupIndex TreasureCache { get; } = PickupCatalog.FindPickupIndex(ItemIndex.TreasureCache);
-        public static float TotalRarity
-        {
-            get
-            {
-                int totalKeys = TeamTotalKeys();
-                return 80 + (totalKeys * 20) + Mathf.Pow(totalKeys, 2);
-            }
-        }
-        public static float CommonRarity => 80 / TotalRarity;
-        public static float UncommonRarity => (TeamTotalKeys() * 20) / TotalRarity;
-        public static float LegendaryRarity => Mathf.Pow(TeamTotalKeys(), 2) / TotalRarity;
 
         public static TreasureCacheModifier Instance { get; } = new TreasureCacheModifier();
 
@@ -34,9 +23,39 @@ namespace Unordinal.InventoryStats.Stats.Modifiers
                 color: StyleIndex.cIsUtility.ToHex());
         }
 
-        private static int TeamTotalKeys()
+        public static float TotalRarity(float keyCount)
         {
-            return ContextProvider.GetAllPlayerBodies().Sum(body => body?.GetPickupCount(TreasureCache) ?? 0);
+            return 80 + (keyCount * 20) + Mathf.Pow(keyCount, 2);
+        }
+
+        public static float CommonRarity(float keyCount)
+        {
+            return 80 / TotalRarity(keyCount);
+        }
+
+        public static float UncommonRarity(float keyCount)
+        {
+            return (keyCount * 20) / TotalRarity(keyCount);
+        }
+
+        public static float LegendaryRarity(float keyCount)
+        {
+            return Mathf.Pow(keyCount, 2) / TotalRarity(keyCount);
+        }
+
+        public static int GetCount()
+        {
+            return ContextProvider.GetPickupCount(Instance.ModifyingIndices);
+        }
+
+        public static int GetTeamCount()
+        {
+            return ContextProvider.GetPickupCount(ContextProvider.GetAllPlayerBodies(), Instance.ModifyingIndices);
+        }
+        
+        public static int GetOnlyTeamCount()
+        {
+            return ContextProvider.GetPickupCount(ContextProvider.GetAllPlayerBodiesExcept(), Instance.ModifyingIndices);
         }
     }
 }

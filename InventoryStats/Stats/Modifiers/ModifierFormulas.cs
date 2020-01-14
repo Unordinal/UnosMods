@@ -8,29 +8,27 @@ namespace Unordinal.InventoryStats.Stats.Modifiers
     {
         public delegate float ModifierFormula(float stat);
 
-        public static float Luck(float procChance)
+        public static float Luck(float baseChance)
         {
-            return 1 - Mathf.Pow(1 - procChance, ContextProvider.GetPickupCount(LuckModifier.Instance.ModifyingIndices) + 1); // https://riskofrain2.fandom.com/wiki/57_Leaf_Clover
+            return 1 - Mathf.Pow(1 - baseChance, LuckModifier.GetCount() + 1); // https://riskofrain2.fandom.com/wiki/57_Leaf_Clover
         }
         
-        public static float TreasureCache(float stat)
+        public static float TreasureCache(float count)
         {
-            return ContextProvider.GetAllPlayerBodiesExcept()
-                .Sum(body => body.GetPickupCount(TreasureCacheModifier.Instance.ModifyingIndices)) + stat;
+            return TreasureCacheModifier.GetOnlyTeamCount() + count;
         }
 
         public static float DualBands(float combinedProc)
         {
-            int hasFire = ContextProvider.GetLocalBody().GetPickupCount(DualBandsModifier.FireBand) > 0 ? 1 : 0;
-            int hasIce = ContextProvider.GetLocalBody().GetPickupCount(DualBandsModifier.IceBand) > 0 ? 1 : 0;
+            bool hasFire = ContextProvider.GetPickupCount(DualBandsModifier.FireBand) > 0;
+            bool hasIce = ContextProvider.GetPickupCount(DualBandsModifier.IceBand) > 0;
 
-            return 1 - Mathf.Pow(1 - combinedProc, hasFire + hasIce);
+            return (hasFire && hasIce) ? 1 - Mathf.Pow(1 - combinedProc, 2) : 0;
         }
 
-        public static float TPHealingNova(float stat)
+        public static float TPHealingNova(float count)
         {
-            return ContextProvider.GetAllPlayerBodiesExcept()
-                .Sum(body => body.GetPickupCount(TPHealingNovaModifier.Instance.ModifyingIndices)) + stat;
+            return TPHealingNovaModifier.GetOnlyTeamCount() + count;
         }
     }
 }

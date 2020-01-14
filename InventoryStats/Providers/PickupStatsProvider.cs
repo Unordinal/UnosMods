@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using RoR2;
 using Unordinal.InventoryStats.Stats;
 using static RoR2.ColorCatalog;
@@ -25,48 +27,59 @@ namespace Unordinal.InventoryStats.Providers
                 pickupStats = EquipmentStatDefs.ContainsKey(index) ? EquipmentStatDefs[index] : null;
             }
 
-            if (pickupStats is null) return "Not Implemented!".Colorize(ColorIndex.Error.ToHex()); // If we didn't find the index in the lists it's probably a new item we haven't added yet.
+            if (pickupStats is null) return "Not Implemented!".Colorize(ColorIndex.Error.ToHex()); // If we didn't find the index in the lists it's probably a new item we haven't implemented yet.
 
-            string fullStatText = "</color>"; // Removes extraneous styling.
-            foreach (var stat in pickupStats) // Loops through all the stats in the chosen pickup.
+            StringBuilder statTextBuilder = new StringBuilder("</color>"); // Removes extraneous styling.
+            foreach (var stat in pickupStats)
             {
                 bool shouldSkipStat =                                               // If all of these are true, we'll skip the current stat.
                     InventoryStats.HideNonStackingStats                             // - User preference is to hide non-stacking stats.
                     && !stat.Stacks                                                 // - The stat doesn't stack.
                     && !ContextProvider.PlayerHasModifyingItems(stat.Modifiers);    // - Player doesn't have any items that modify the stat (ex: clover modifying a proc. chance that doesn't stack should still show)
                 
-                if (shouldSkipStat) // If the current stat doesn't stack and the user preference is to hide these, skip it.
+                if (shouldSkipStat) // If all of the above are true, skip the current stat.
                     continue;
                 
                 if (stat.Formula != null)
                 {
-                    fullStatText += $"<align=left>{stat.Text}"; // Stat name.
+                    statTextBuilder.Append($"<align=left>{stat.Text}"); // Stat name.
                     
-                    // Adds the current stat value with stacks + the stat's modifiers together to get the final stat value.
-                    // (eg: 2 items at 10% per stack = 20%, then has 1 clover so add 16% to get total of 36%)
-                    float statValue = stat.Formula(count) + stat.GetSubStats(count).Sum(); 
-                    string statValueStr = stat.Format(statValue);
+                    // Gets the current stat's value.
+                    float baseStatValue = stat.Formula(count);
+                    float finalStatValue = baseStatValue;
 
-                    // Takes the modifiers (clover, lepton, etc) and gets and appends their values to the stat value string.
-                    //var subStatsValues = stat.GetSubStats(count).Zip(stat.Modifiers, Tuple.Create);
-                    statValueStr += stat.FormatSubStats(count);
+                    // Takes the modifiers (clover, lepton, etc) and gets and adds their values to the final stat value and formats them for later adding to the final stat text.
+                    StringBuilder modTextBuilder = new StringBuilder();
+                    foreach (var mod in stat.Modifiers)
+                    {
+                        if (mod.Formula is null) continue;
+
+                        float modValue = mod.Formula(baseStatValue);
+                        float modDiff = modValue - baseStatValue;
+                        if (Math.Round(modDiff, 3) > 0)
+                        {
+                            finalStatValue += modDiff;
+                            modTextBuilder.AppendLine(mod.Format(modDiff));
+                        }
+                    }
                     
-                    fullStatText += $": {statValueStr}";
+                    statTextBuilder.Append($": {stat.Format(finalStatValue)}");
+                    statTextBuilder.Append($"{modTextBuilder.ToString().TrimEnd()}");
                 }
                 else // if the stat doesn't have a formula (only text), simply append that text and color it with a special color.
                 {
-                    fullStatText += $"<align=left>{stat.Text.Colorize(ColorNote)}";
+                    statTextBuilder.Append($"<align=left>{stat.Text.Colorize(ColorNote)}");
                 }
 
-                fullStatText += "\n";
+                statTextBuilder.AppendLine();
             }
-            // Trims any extraneous whitespace characters - we don't want a hanging newline taking up space and this was cleaner than checking whether or not to add a newline (especially with the hide non-stacking logic)
-            fullStatText = fullStatText.Trim();
+            // Trims extraneous whitespace characters - we don't want a hanging newline taking up space and this was cleaner than checking whether or not to add a newline (especially with the hide non-stacking logic)
+            statTextBuilder.Trim();
 
             if (pickupDef.itemIndex != ItemIndex.None)
-                fullStatText += $"<br></style><align=right>({count} stack{(count > 1 ? "s" : "")})"; // Appends the item stack count to the end and aligns it to the right (appending an 's' for plural count if needed)
+                statTextBuilder.Append($"<br></style><align=right>({count} stack{(count > 1 ? "s" : "")})"); // Appends the item stack count to the end and aligns it to the right (appending an 's' for plural count if needed)
 
-            return fullStatText;
+            return statTextBuilder.ToString();
         }
     }
 }

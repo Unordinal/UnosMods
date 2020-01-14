@@ -12,8 +12,7 @@ namespace UnosMods.StartingItemsPicker
         public Func<string> GetDescription { get; set; }
         public Transform Parent { get; set; }
 
-        [SuppressMessage("Code Quality", "IDE0051:Remove unused private members", Justification = "It's actually used.")]
-        private void Awake()
+        public void Awake()
         {
             Parent = RoR2Application.instance.mainCanvas.transform;
             RootObject = Instantiate(Resources.Load<GameObject>("Prefabs/NotificationPanel2"));

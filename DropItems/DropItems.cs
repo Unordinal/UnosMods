@@ -18,7 +18,7 @@ namespace UnosMods.ToolbotEquipmentSwap
     {
         public const string PluginName = "Drop Items";
         public const string PluginGUID = "com.unordinal.dropitems";
-        public const string PluginVersion = "1.0.1";
+        public const string PluginVersion = "1.0.3";
         private const string ModRpcId = "UnosMods.DropItems";
 
         private static MiniRpcLib.Action.IRpcAction<DropItemsMessage> CmdDropItem;
@@ -28,7 +28,7 @@ namespace UnosMods.ToolbotEquipmentSwap
 
         public DropItems()
         {
-            var configDropItemKey = Config.Bind("DropItems", "DropItemKey", KeyCode.G.ToString(), "Key code for dropping the item that was last picked up. (Default: G)");
+            var configDropItemKey = Config.Bind("DropItems", "DropItemKey", KeyCode.G.ToString(), "Key code for dropping the item that was last picked up.");
             dropItemKey = GetKey(configDropItemKey);
             if (dropItemKey == null)
                 Logger.LogError($"Invalid keycode '{configDropItemKey}' specified for DropItemKey!");
@@ -39,6 +39,7 @@ namespace UnosMods.ToolbotEquipmentSwap
             On.RoR2.GenericPickupController.GrantEquipment += GenericPickupController_GrantEquipment;
         }
 
+        // FixedUpdate causes input loss.
         public void Update()
         {
             if (Run.instance && Stage.instance && dropItemKey != null && Input.GetKeyDown(dropItemKey.Value))
@@ -48,7 +49,15 @@ namespace UnosMods.ToolbotEquipmentSwap
         private void GenericPickupController_GrantItem(On.RoR2.GenericPickupController.orig_GrantItem orig, GenericPickupController self, CharacterBody body, Inventory inventory)
         {
             orig(self, body, inventory);
-            LastPickedUpItem[inventory] = self.pickupIndex;
+            var pickupDef = PickupCatalog.GetPickupDef(self.pickupIndex);
+            if (pickupDef != null)
+            {
+                var itemDef = ItemCatalog.GetItemDef(pickupDef.itemIndex);
+                if (itemDef != null && itemDef.tier != ItemTier.NoTier)
+                {
+                    LastPickedUpItem[inventory] = pickupDef.pickupIndex;
+                }
+            }
         }
 
         private void GenericPickupController_GrantEquipment(On.RoR2.GenericPickupController.orig_GrantEquipment orig, GenericPickupController self, CharacterBody body, Inventory inventory)
@@ -59,9 +68,7 @@ namespace UnosMods.ToolbotEquipmentSwap
 
         private KeyCode? GetKey(ConfigEntry<string> param)
         {
-            if (!Enum.TryParse(param.Value, out KeyCode result))
-                return null;
-            return result;
+            return Enum.TryParse(param.Value, out KeyCode result) ? (KeyCode?)result : null;
         }
 
         public void DropLastItem()

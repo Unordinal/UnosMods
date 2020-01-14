@@ -46,7 +46,10 @@ namespace Unordinal.InventoryStats.Stats
 
             float currStat = Formula(count);
             foreach (var mod in Modifiers)
+            {
+                if (mod.Formula is null) continue;
                 yield return mod.Formula(currStat) - currStat;
+            }
         }
 
         public string FormatSubStats(float count = 1)

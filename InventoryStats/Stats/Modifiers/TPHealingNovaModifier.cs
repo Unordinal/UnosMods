@@ -22,9 +22,14 @@ namespace Unordinal.InventoryStats.Stats.Modifiers
                 color: StyleIndex.cIsUtility.ToHex());
         }
 
-        private static int TeamTotalDaisies()
+        public static int GetTeamCount()
         {
-            return ContextProvider.GetAllPlayerBodies().Sum(body => body?.GetPickupCount(TPHealingNova) ?? 0);
+            return ContextProvider.GetPickupCount(ContextProvider.GetAllPlayerBodies(), Instance.ModifyingIndices);
+        }
+
+        public static int GetOnlyTeamCount()
+        {
+            return ContextProvider.GetPickupCount(ContextProvider.GetAllPlayerBodiesExcept(), Instance.ModifyingIndices);
         }
     }
 }

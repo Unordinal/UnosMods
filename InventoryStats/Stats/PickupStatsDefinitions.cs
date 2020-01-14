@@ -242,21 +242,21 @@ namespace Unordinal.InventoryStats.Stats
                 {
                     new Stat(
                         text: "Common Item Rarity",
-                        formula: _ => TreasureCacheModifier.CommonRarity,
-                        formatter: new PercentageStatFormatter(color: ColorCatalog.ColorIndex.Tier1Item.ToHex()),
-                        modifiers: TreasureCacheModifier.Instance
+                        formula: count => TreasureCacheModifier.CommonRarity(TreasureCacheModifier.GetTeamCount()),
+                        formatter: new PercentageStatFormatter(color: ColorCatalog.ColorIndex.Tier1Item.ToHex())
+                        //modifiers: TreasureCacheModifier.Instance
                         ),
                     new Stat(
                         text: "Uncommon Item Rarity",
-                        formula: _ => TreasureCacheModifier.UncommonRarity,
-                        formatter: new PercentageStatFormatter(color: ColorCatalog.ColorIndex.Tier2Item.ToHex()),
-                        modifiers: TreasureCacheModifier.Instance
+                        formula: count => TreasureCacheModifier.UncommonRarity(TreasureCacheModifier.GetTeamCount()),
+                        formatter: new PercentageStatFormatter(color: ColorCatalog.ColorIndex.Tier2Item.ToHex())
+                        //modifiers: TreasureCacheModifier.Instance
                         ),
                     new Stat(
                         text: "Legendary Item Rarity",
-                        formula: _ => TreasureCacheModifier.LegendaryRarity,
-                        formatter: new PercentageStatFormatter(color: ColorCatalog.ColorIndex.Tier3Item.ToHex()),
-                        modifiers: TreasureCacheModifier.Instance
+                        formula: count => TreasureCacheModifier.LegendaryRarity(TreasureCacheModifier.GetTeamCount()),
+                        formatter: new PercentageStatFormatter(color: ColorCatalog.ColorIndex.Tier3Item.ToHex())
+                        //modifiers: TreasureCacheModifier.Instance
                         ),
                 },
                 [ItemIndex.BossDamageBonus]         = new List<Stat>
@@ -311,7 +311,7 @@ namespace Unordinal.InventoryStats.Stats
                     new Stat(
                         text: "Damage",
                         formula: count => StackFormulas.Linear(count, 3f),
-                        formatter: new DistanceStatFormatter()
+                        formatter: new PercentageStatFormatter()
                         ),
                     new Stat(
                         text: "Proc. Chance",
@@ -596,7 +596,7 @@ namespace Unordinal.InventoryStats.Stats
                 {
                     new Stat(
                         text: "Nova Count",
-                        formula: count => StackFormulas.Linear(count, 1f),
+                        formula: count => count,
                         formatter: new NumStatFormatter(),
                         modifiers: TPHealingNovaModifier.Instance
                         ),

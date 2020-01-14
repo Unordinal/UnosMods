@@ -17,33 +17,32 @@ namespace Unordinal.InventoryStats
     public class InventoryStats : BaseUnityPlugin
     {
         public const string PluginName = "InventoryStats";
-        public const string PluginVersion = "1.0.0";
+        public const string PluginVersion = "1.0.1";
         public const string PluginGUID = "com.unordinal.inventorystats";
         internal static new BepInEx.Logging.ManualLogSource Logger { get; private set; }
 
-        public static ConfigEntry<bool> EntryHideNonStackingStats { get; private set; }
-        public static bool HideNonStackingStats => EntryHideNonStackingStats.Value;
+        public static ConfigEntry<bool> HideNonStackingStatsEntry { get; private set; }
+        public static bool HideNonStackingStats => HideNonStackingStatsEntry.Value;
 
         internal void Awake()
         {
             Logger = base.Logger;
 
-            EntryHideNonStackingStats = Config.Bind("InventoryStats", "HideNonStackingStats", false, "If true, stats that don't stack will be hidden unless they're modified by something like 57 Leaf Clover.");
+            HideNonStackingStatsEntry = Config.Bind("InventoryStats", "HideNonStackingStats", false, "If true, stats that don't stack will be hidden unless they're modified by something like 57 Leaf Clover.");
 
             RegisterHooks();
         }
 
-        private void RegisterHooks()
+        internal void RegisterHooks()
         {
             On.RoR2.PickupCatalog.Init += PickupCatalog_Init;
 
             On.RoR2.UI.ItemIcon.SetItemIndex += ItemIcon_SetItemIndex;
             IL.RoR2.UI.EquipmentIcon.SetDisplayData += EquipmentIcon_SetDisplayData;
             //On.RoR2.UI.EquipmentIcon.SetDisplayData += EquipmentIcon_SetDisplayData;
-            //On.RoR2.UI.ItemInventoryDisplay.UpdateDisplay += ItemInventoryDisplay_UpdateDisplay;
         }
 
-        private void UnregisterHooks()
+        internal void UnregisterHooks()
         {
             On.RoR2.PickupCatalog.Init -= PickupCatalog_Init;
 
@@ -54,7 +53,7 @@ namespace Unordinal.InventoryStats
 
         public void UpdateStats()
         {
-            Logger.LogInfo("Updating inventory stats.");
+            Logger.LogInfo("Updating inventory stat definitions.");
             PickupStatsDefinitions.UpdateItemStatDefs();
             PickupStatsDefinitions.UpdateEquipmentStatDefs();
         }
@@ -62,7 +61,7 @@ namespace Unordinal.InventoryStats
         public void UpdatePickupTooltip(TooltipProvider tooltip, PickupIndex pickupIdx, int itemCount = 1)
         {
             PickupDef pickupDef = PickupCatalog.GetPickupDef(pickupIdx);
-
+            
             string descToken;
             if (pickupDef.itemIndex != ItemIndex.None)
             {
@@ -83,7 +82,7 @@ namespace Unordinal.InventoryStats
         public void UpdatePickupTooltip(ItemIcon icon, ItemIndex itemIdx, int itemCount)
         {
             PickupIndex pickupIdx = PickupCatalog.FindPickupIndex(itemIdx);
-
+            
             if (pickupIdx != PickupIndex.none)
                 UpdatePickupTooltip(icon.tooltipProvider, pickupIdx, itemCount);
         }
@@ -150,10 +149,5 @@ namespace Unordinal.InventoryStats
                 Logger.LogError(e.Message);
             }
         }*/
-
-        private void ItemInventoryDisplay_UpdateDisplay(On.RoR2.UI.ItemInventoryDisplay.orig_UpdateDisplay orig, ItemInventoryDisplay self)
-        {
-            orig(self);
-        }
     }
 }
