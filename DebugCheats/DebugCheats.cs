@@ -1,20 +1,23 @@
-﻿using System;
-using BepInEx;
-using BepInEx.Configuration;
-using RoR2;
-using R2API.Utils;
-using UnityEngine;
-using System.Linq;
-using System.Collections.Generic;
-using UnityEngine.Networking;
-using static UnosMods.DebugCheats.Extensions;
+﻿using BepInEx;
+using BepInEx.Logging;
 using DebugCheats;
+using R2API.Networking;
+using R2API.Networking.Interfaces;
+using R2API.Utils;
+using RoR2;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+using UnityEngine.Networking;
+using Unordinal.DebugCheats.Networking;
+using static Unordinal.DebugCheats.Extensions;
 
-namespace UnosMods.DebugCheats
+namespace Unordinal.DebugCheats
 {
     [BepInDependency("com.bepis.r2api")]
-    [BepInPlugin("com.unordinal.debugcheats", "Debug Cheats", "1.0.0")]
-
+    [BepInPlugin("Unordinal.DebugCheats", "Debug Cheats", "1.0.0")]
+    [R2APISubmoduleDependency(nameof(NetworkingAPI))]
     public class DebugCheats : BaseUnityPlugin
     {
         List<PickupIndex> tier1Drops = new List<PickupIndex>();
@@ -28,20 +31,42 @@ namespace UnosMods.DebugCheats
         bool givenMoney = false;
         bool godMode = false;
 
-        public DebugCheats()
+        int testcounter = 0;
+
+        public static new ManualLogSource Logger { get; private set; }
+
+        public void Awake()
         {
-            On.RoR2.RoR2Application.UnitySystemConsoleRedirector.Redirect += orig => { }; // Stop in-game console from redirecting from base cmd console.
+            Logger = base.Logger;
+
+            On.RoR2.Networking.GameNetworkManager.OnClientConnect += (self, user, t) => { }; // Lets me connect to myself with a second instance of the game. Stops usernames from working properly.
+
+            // On.RoR2.RoR2Application.UnitySystemConsoleRedirector.Redirect += orig => { }; // Stop in-game console from redirecting from base cmd console.
             On.RoR2.Console.Awake += (orig, self) =>
             {
                 CommandHelper.RegisterCommands(self);
                 orig(self);
             };
+
+            // NetworkingAPI testing
+            NetworkingAPI.RegisterMessageType<ExampleMessage>();
         }
 
         public void Update()
         {
             if (Run.instance)
             {
+                //testcounter++;
+                if (testcounter > 1000)
+                {
+                    testcounter = 0;
+                    new ExampleMessage
+                    {
+                        Integer = 5,
+                        Str = NetworkServer.active ? "Yay" : "Nay"
+                    }.Send(NetworkDestination.Clients);
+                }
+
                 if (!tier1Drops.Any() || !tier2Drops.Any() || !tier3Drops.Any() || !lunarDrops.Any() || !allDrops.Any() || !equipmentDrops.Any() || !bossDrops.Any())
                 {
                     tier1Drops = Run.instance.availableTier1DropList;

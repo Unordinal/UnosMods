@@ -1,9 +1,5 @@
-﻿using System;
+﻿using RoR2;
 using System.Collections.Generic;
-using System.Text;
-using RoR2;
-using UnityEngine;
-using Unordinal;
 using Unordinal.InventoryStats.Formatters;
 using Unordinal.InventoryStats.Providers;
 using Unordinal.InventoryStats.Stats.Modifiers;
@@ -46,10 +42,15 @@ namespace Unordinal.InventoryStats.Stats
                 [ItemIndex.Tooth]                   = new List<Stat>
                 {
                     new Stat(
-                        text: "Health per Orb",
-                        formula: count => StackFormulas.Linear(count, 8.0f),
-                        formatter: new NumStatFormatter()
-                        )
+                        text: "Flat Healing",
+                        formula: count => 8.0f,
+                        formatter: new NumStatFormatter(suffix: " HP")
+                        ),
+                    new Stat(
+                        text: "Percent Healing",
+                        formula: count => StackFormulas.Linear(count, 0.05f),
+                        formatter: new PercentageStatFormatter(suffix: " of max HP")
+                        ),
                 },
                 [ItemIndex.CritGlasses]             = new List<Stat>
                 {
@@ -139,7 +140,7 @@ namespace Unordinal.InventoryStats.Stats
                 {
                     new Stat(
                         text: "Health Regen",
-                        formula: count => StackFormulas.Linear(count, 3.0f),
+                        formula: count => StackFormulas.Linear(count, 4.0f),
                         formatter: new NumStatFormatter(suffix: " hp/s")
                         )
                 },
@@ -155,12 +156,18 @@ namespace Unordinal.InventoryStats.Stats
                 {
                     new Stat(
                         text: "Heal",
-                        formula: count => StackFormulas.Linear(count, 10f),
-                        formatter: new NumStatFormatter()
+                        formula: count => StackFormulas.Linear(count, 0.05f),
+                        formatter: new PercentageStatFormatter(suffix: " HP")
+                        ),
+                    new Stat(
+                        text: "Base Heal",
+                        formula: count => StackFormulas.Linear(count, 20f),
+                        formatter: new NumStatFormatter(suffix: " HP"),
+                        stacks: false
                         ),
                     new Stat(
                         text: "Heal Delay",
-                        formula: count => 1.1f,
+                        formula: count => 2.0f,
                         formatter: new TimeStatFormatter(),
                         stacks: false
                         )
@@ -303,6 +310,15 @@ namespace Unordinal.InventoryStats.Stats
                         stacks: false
                         )
                 },
+                [ItemIndex.ArmorPlate]              = new List<Stat>
+                {
+                    new Stat(
+                        text: "Damage Reduction",
+                        formula: count => StackFormulas.Linear(count, 5f),
+                        formatter: new NumStatFormatter()
+                        )
+                },
+                [ItemIndex.ScrapWhite]              = new List<Stat>(),
                 #endregion
 
                 #region Uncommon
@@ -516,15 +532,13 @@ namespace Unordinal.InventoryStats.Stats
                 {
                     new Stat(
                         text: "Damage",
-                        formula: count => StackFormulas.Linear(count, 1.25f, 2.50f),
+                        formula: count => StackFormulas.Linear(count, 2.50f),
                         formatter: new PercentageStatFormatter()
                         ),
                     new Stat(
-                        text: "Proc. Chance",
-                        formula: count => 0.08f,
-                        formatter: new PercentageStatFormatter(),
-                        stacks: false,
-                        modifiers: new StatModifier[] { LuckModifier.Instance, DualBandsModifier.Instance }
+                        text: "Slow Duration",
+                        formula: count => StackFormulas.Linear(count, 3.0f),
+                        formatter: new TimeStatFormatter()
                         ),
                     new Stat(
                         text: "Slow Amount",
@@ -537,15 +551,14 @@ namespace Unordinal.InventoryStats.Stats
                 {
                     new Stat(
                         text: "Damage",
-                        formula: count => StackFormulas.Linear(count, 2.5f, 5.0f),
+                        formula: count => StackFormulas.Linear(count, 3.0f),
                         formatter: new PercentageStatFormatter()
                         ),
                     new Stat(
-                        text: "Proc. Chance",
-                        formula: count => 0.08f,
-                        formatter: new PercentageStatFormatter(),
-                        stacks: false,
-                        modifiers: new StatModifier[] { LuckModifier.Instance, DualBandsModifier.Instance }
+                        text: "Radius",
+                        formula: count => 13.0f,
+                        formatter: new DistanceStatFormatter(),
+                        stacks: false
                         )
                 },
                 [ItemIndex.SlowOnHit]               = new List<Stat>
@@ -640,6 +653,36 @@ namespace Unordinal.InventoryStats.Stats
                         formatter: new NumStatFormatter(prefix: "$", color: ColorNeutral)
                         )
                 },
+                [ItemIndex.DeathMark]               = new List<Stat>
+                {
+                    new Stat(
+                        text: "Duration",
+                        formula: count => StackFormulas.Linear(count, 7.0f),
+                        formatter: new TimeStatFormatter(),
+                        stacks: false
+                        ),
+                    new Stat(
+                        text: "Damage Bonus",
+                        formula: count => 0.50f,
+                        formatter: new PercentageStatFormatter(),
+                        stacks: false
+                        )
+                },
+                [ItemIndex.Squid]                   = new List<Stat>
+                {
+                    new Stat(
+                        text: "Turret Damage",
+                        formula: count => StackFormulas.Linear(count, 1.0f),
+                        formatter: new PercentageStatFormatter()
+                        ),
+                    new Stat(
+                        text: "Duration",
+                        formula: count => 30f,
+                        formatter: new TimeStatFormatter(),
+                        stacks: false
+                        )
+                },
+                [ItemIndex.ScrapGreen] = new List<Stat>(),
                 #endregion
 
                 #region Legendary
@@ -720,14 +763,26 @@ namespace Unordinal.InventoryStats.Stats
                         formatter: new TimeStatFormatter()
                         ),
                     new Stat(
-                        text: "Radius",
-                        formula: count => 10.0f,
+                        text: "Base Radius",
+                        formula: count => 5.0f,
+                        formatter: new DistanceStatFormatter(),
+                        stacks: false
+                        ),
+                    new Stat(
+                        text: "Max Radius",
+                        formula: count => 100.0f,
                         formatter: new DistanceStatFormatter(),
                         stacks: false
                         ),
                     new Stat(
                         text: "Base Damage",
-                        formula: count => 23.0f,
+                        formula: count => 10.0f,
+                        formatter: new PercentageStatFormatter(),
+                        stacks: false
+                        ),
+                    new Stat(
+                        text: "Max Damage",
+                        formula: count => 100.0f,
                         formatter: new PercentageStatFormatter(),
                         stacks: false
                         ),
@@ -902,6 +957,47 @@ namespace Unordinal.InventoryStats.Stats
                         formatter: new PercentageStatFormatter()
                         ),
                 },
+                [ItemIndex.Plant]                   = new List<Stat>
+                {
+                    new Stat(
+                        text: "Radius",
+                        formula: count => StackFormulas.Linear(count, 5.0f),
+                        formatter: new DistanceStatFormatter()
+                        ),
+                    new Stat(
+                        text: "Healing",
+                        formula: count => 0.05f,
+                        formatter: new PercentageStatFormatter(suffix: " of max HP every 0.5s"),
+                        stacks: false
+                        ),
+                    new Stat(
+                        text: "Duration",
+                        formula: count => 10f,
+                        formatter: new TimeStatFormatter(),
+                        stacks: false
+                        ),
+                },
+                [ItemIndex.CaptainDefenseMatrix]    = new List<Stat>
+                {
+                    new Stat(
+                        text: "Shots",
+                        formula: count => count,
+                        formatter: new NumStatFormatter()
+                        ),
+                    new Stat(
+                        text: "Range",
+                        formula: count => 20f,
+                        formatter: new DistanceStatFormatter(),
+                        stacks: false
+                        ),
+                    new Stat(
+                        text: "Rate of Fire",
+                        formula: count => 0.5f,
+                        formatter: new TimeStatFormatter(),
+                        stacks: false
+                        ),
+                },
+                [ItemIndex.ScrapRed] = new List<Stat>(),
                 #endregion
 
                 #region Boss
@@ -955,9 +1051,14 @@ namespace Unordinal.InventoryStats.Stats
                 {
                     new Stat(
                         text: "Damage",
-                        formula: count => StackFormulas.Linear(count, 1f),
+                        formula: count => StackFormulas.Linear(count, 3f),
                         formatter: new PercentageStatFormatter()
-                        )
+                        ),
+                    new Stat(
+                        text: "Fire Rate",
+                        formula: count => 1.6f,
+                        formatter: new TimeStatFormatter(suffix: "s (scales with movespeed)")
+                        ),
                 },
                 [ItemIndex.Pearl]                   = new List<Stat>
                 {
@@ -1025,6 +1126,81 @@ namespace Unordinal.InventoryStats.Stats
                         stacks: false
                         )
                 },
+                [ItemIndex.ArtifactKey]             = new List<Stat>
+                {
+                    new Stat(
+                        text: "Used to deal damage to the Artifact Reliquary.",
+                        formula: null,
+                        formatter: new StatFormatter()
+                        ),
+                },
+                [ItemIndex.SiphonOnLowHealth]       = new List<Stat>
+                {
+                    new Stat(
+                        text: "Targets",
+                        formula: count => count,
+                        formatter: new NumStatFormatter()
+                        ),
+                    new Stat(
+                        text: "Range",
+                        formula: count => 13f,
+                        formatter: new DistanceStatFormatter(),
+                        stacks: false
+                        ),
+                    new Stat(
+                        text: "Damage",
+                        formula: count => 1.0f,
+                        formatter: new PercentageStatFormatter(),
+                        stacks: false
+                        ),
+                    new Stat(
+                        text: "Healing",
+                        formula: count => 1.0f,
+                        formatter: new PercentageStatFormatter(),
+                        stacks: false
+                        ),
+                },
+                [ItemIndex.FireballsOnHit]          = new List<Stat>
+                {
+                    new Stat(
+                        text: "Damage",
+                        formula: count => StackFormulas.Linear(count, 3.0f),
+                        formatter: new PercentageStatFormatter()
+                        ),
+                    new Stat(
+                        text: "Chance",
+                        formula: count => 0.1f,
+                        formatter: new PercentageStatFormatter(),
+                        modifiers: LuckModifier.Instance,
+                        stacks: false
+                        ),
+                    new Stat(
+                        text: "Count",
+                        formula: count => 3.0f,
+                        formatter: new NumStatFormatter(),
+                        stacks: false
+                        ),
+                },
+                [ItemIndex.BleedOnHitAndExplode]    = new List<Stat>
+                {
+                    new Stat(
+                        text: "Expl. Damage",
+                        formula: count => StackFormulas.Linear(count, 4.0f),
+                        formatter: new PercentageStatFormatter()
+                        ),
+                    new Stat(
+                        text: "Expl. Add. Damage",
+                        formula: count => StackFormulas.Linear(count, 0.15f),
+                        formatter: new PercentageStatFormatter(suffix: " of target max health")
+                        ),
+                    new Stat(
+                        text: "Bleed Damage",
+                        formula: count => 2.4f,
+                        formatter: new PercentageStatFormatter(),
+                        stacks: false
+                        ),
+                },
+                [ItemIndex.ScrapYellow] = new List<Stat>(),
                 #endregion
 
                 #region Lunar
@@ -1128,6 +1304,47 @@ namespace Unordinal.InventoryStats.Stats
                         formula: null,
                         formatter: new StatFormatter()
                         )
+                },
+                [ItemIndex.FocusConvergence]        = new List<Stat>
+                {
+                    new Stat(
+                        text: "Charge Time",
+                        formula: count => StackFormulas.Linear(count, 0.30f),
+                        formatter: new PercentageStatFormatter()
+                        ),
+                    new Stat(
+                        text: "Zone Size",
+                        formula: count => StackFormulas.Hyperbolic(count, 0.50f),
+                        formatter: new DistanceStatFormatter()
+                        ),
+                },
+                [ItemIndex.MonstersOnShrineUse]     = new List<Stat>(),
+                [ItemIndex.RandomDamageZone]        = new List<Stat>
+                {
+                    new Stat(
+                        text: "Range",
+                        formula: count => StackFormulas.Hyperbolic(count, 0.50f),
+                        formatter: new DistanceStatFormatter()
+                        ),
+                    new Stat(
+                        text: "Extra Damage",
+                        formula: count => 0.5f,
+                        formatter: new PercentageStatFormatter(),
+                        stacks: false
+                        ),
+                },
+                [ItemIndex.LunarBadLuck]            = new List<Stat>
+                {
+                    new Stat(
+                        text: "Cooldown Reduction",
+                        formula: count => StackFormulas.Linear(count, 1.0f, 2.0f),
+                        formatter: new TimeStatFormatter()
+                        ),
+                    new Stat(
+                        text: "Bad Luck",
+                        formula: count => count,
+                        formatter: new NumStatFormatter()
+                        ),
                 },
                 #endregion
 
@@ -1464,6 +1681,91 @@ namespace Unordinal.InventoryStats.Stats
                         formatter: new PercentageStatFormatter()
                         ),
                 },
+                [EquipmentIndex.Recycle]                = new List<Stat>
+                {
+                    new Stat(
+                        text: "Can only be used on the same pickup drop once.",
+                        formula: null,
+                        formatter: new StatFormatter()
+                        ),
+                },
+                [EquipmentIndex.Saw]                    = new List<Stat>
+                {
+                    new Stat(
+                        text: "Cooldown",
+                        formula: count => 45f,
+                        formatter: new TimeStatFormatter(color: ColorEquipmentCooldown)
+                        ),
+                    new Stat(
+                        text: "Damage",
+                        formula: count => 4.0f,
+                        formatter: new PercentageStatFormatter(prefix: "3x")
+                        ),
+                    new Stat(
+                        text: "Bleeding Damage",
+                        formula: count => 1.0f,
+                        formatter: new PercentageStatFormatter(prefix: "3x")
+                        ),
+                },
+                [EquipmentIndex.LifestealOnHit]         = new List<Stat>
+                {
+                    new Stat(
+                        text: "Cooldown",
+                        formula: count => 60f,
+                        formatter: new TimeStatFormatter(color: ColorEquipmentCooldown)
+                        ),
+                    new Stat(
+                        text: "Healing",
+                        formula: count => 0.2f,
+                        formatter: new PercentageStatFormatter(suffix: " of damage dealt")
+                        ),
+                    new Stat(
+                        text: "Duration",
+                        formula: count => 8.0f,
+                        formatter: new TimeStatFormatter()
+                        ),
+                },
+                [EquipmentIndex.TeamWarCry]             = new List<Stat>
+                {
+                    new Stat(
+                        text: "Cooldown",
+                        formula: count => 45f,
+                        formatter: new TimeStatFormatter(color: ColorEquipmentCooldown)
+                        ),
+                    new Stat(
+                        text: "Duration",
+                        formula: count => 7.0f,
+                        formatter: new TimeStatFormatter()
+                        ),
+                    new Stat(
+                        text: "Move Speed",
+                        formula: count => 0.5f,
+                        formatter: new PercentageStatFormatter()
+                        ),
+                    new Stat(
+                        text: "Attack Speed",
+                        formula: count => 1.0f,
+                        formatter: new PercentageStatFormatter()
+                        ),
+                },
+                [EquipmentIndex.DeathProjectile]        = new List<Stat>
+                {
+                    new Stat(
+                        text: "Cooldown",
+                        formula: count => 45f,
+                        formatter: new TimeStatFormatter(color: ColorEquipmentCooldown)
+                        ),
+                    new Stat(
+                        text: "Duration",
+                        formula: count => 8.0f,
+                        formatter: new TimeStatFormatter()
+                        ),
+                    new Stat(
+                        text: "Trigger Rate",
+                        formula: count => 1.0f,
+                        formatter: new TimeStatFormatter()
+                        ),
+                },
                 #endregion
 
                 #region Lunar
@@ -1522,8 +1824,13 @@ namespace Unordinal.InventoryStats.Stats
                         ),
                     new Stat(
                         text: "Range",
-                        formula: count => 8f,
+                        formula: count => 15f,
                         formatter: new DistanceStatFormatter()
+                        ),
+                    new Stat(
+                        text: "Duration",
+                        formula: count => 12f,
+                        formatter: new TimeStatFormatter()
                         ),
                     new Stat(
                         text: "Damage To Yourself",

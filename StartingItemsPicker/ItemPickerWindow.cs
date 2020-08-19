@@ -3,7 +3,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
-namespace UnosMods.StartingItemsPicker
+namespace Unordinal.StartingItemsPicker
 {
     public class ItemPickerWindow : MonoBehaviour
     {

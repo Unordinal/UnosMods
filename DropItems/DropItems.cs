@@ -1,49 +1,111 @@
-﻿using System;
+﻿using BepInEx;
+using BepInEx.Configuration;
+using BepInEx.Logging;
+using R2API.Networking;
+using R2API.Networking.Interfaces;
+using RoR2;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-
 using UnityEngine;
 using UnityEngine.Networking;
+using Unordinal.DropItems.Networking;
 
-using RoR2;
-using BepInEx;
-using BepInEx.Configuration;
-using MiniRpcLib;
-
-namespace UnosMods.ToolbotEquipmentSwap
+namespace Unordinal.DropItems
 {
     [BepInDependency(R2API.R2API.PluginGUID)]
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     public sealed class DropItems : BaseUnityPlugin
     {
         public const string PluginName = "Drop Items";
-        public const string PluginGUID = "com.unordinal.dropitems";
-        public const string PluginVersion = "1.0.3";
-        private const string ModRpcId = "UnosMods.DropItems";
+        public const string PluginGUID = "Unordinal.DropItems";
+        public const string PluginVersion = "1.0.4";
 
-        private static MiniRpcLib.Action.IRpcAction<DropItemsMessage> CmdDropItem;
-        public Dictionary<Inventory, PickupIndex> LastPickedUpItem { get; set; } = new Dictionary<Inventory, PickupIndex>();
+        public static new ManualLogSource Logger { get; private set; }
 
-        private readonly KeyCode? dropItemKey;
+        public static Dictionary<Inventory, PickupIndex> LastPickedUpItem { get; set; } = new Dictionary<Inventory, PickupIndex>();
 
-        public DropItems()
+        private KeyCode? dropItemKey;
+
+        internal void Awake()
         {
+            Logger = base.Logger;
+
             var configDropItemKey = Config.Bind("DropItems", "DropItemKey", KeyCode.G.ToString(), "Key code for dropping the item that was last picked up.");
             dropItemKey = GetKey(configDropItemKey);
-            if (dropItemKey == null)
-                Logger.LogError($"Invalid keycode '{configDropItemKey}' specified for DropItemKey!");
+            if (dropItemKey is null) Logger.LogError($"Invalid keycode '{configDropItemKey}' specified for DropItemKey!");
 
-            var miniRpc = MiniRpc.CreateInstance(ModRpcId);
-            CmdDropItem = miniRpc.RegisterAction(Target.Server, (Action<NetworkUser, DropItemsMessage>)DoDropItem);
             On.RoR2.GenericPickupController.GrantItem += GenericPickupController_GrantItem;
             On.RoR2.GenericPickupController.GrantEquipment += GenericPickupController_GrantEquipment;
         }
 
-        // FixedUpdate causes input loss.
-        public void Update()
+        internal void Start()
         {
-            if (Run.instance && Stage.instance && dropItemKey != null && Input.GetKeyDown(dropItemKey.Value))
-                DropLastItem();
+            NetworkingAPI.RegisterMessageType<DropLastItemMessage>();
+        }
+
+        internal void Update()
+        {
+            var localMaster = LocalUserManager.GetFirstLocalUser().cachedMaster;
+            if (Run.instance && Stage.instance && localMaster?.GetBody() != null && !localMaster.lostBodyToDeath)
+            {
+                if (dropItemKey != null && Input.GetKeyDown(dropItemKey.Value))
+                {
+                    new DropLastItemMessage(localMaster).Send(NetworkDestination.Server);
+                }
+            }
+        }
+
+        public static void DropLastItem(CharacterMaster charMaster)
+        {
+            if (NetworkServer.active)
+            {
+                var inv = charMaster.inventory;
+                var pcmc = charMaster.playerCharacterMasterController;
+                string requesterName = pcmc.GetDisplayName();
+                if (LastPickedUpItem.ContainsKey(inv) && LastPickedUpItem[inv] != PickupIndex.none && inv.itemAcquisitionOrder.Any())
+                {
+                    PickupDef pickupDef = PickupCatalog.GetPickupDef(LastPickedUpItem[inv]);
+                    LastPickedUpItem[inv] = PickupIndex.none;
+
+                    if (pickupDef.equipmentIndex != EquipmentIndex.None)
+                    {
+                        if (inv.GetEquipmentIndex() != pickupDef.equipmentIndex)
+                        {
+                            Logger.LogWarning($"'{requesterName}' tried to drop an equipment item they don't have! ({pickupDef.equipmentIndex})");
+                            return;
+                        }
+                        inv.SetEquipmentIndex(EquipmentIndex.None);
+                    }
+                    else
+                    {
+                        if (inv.GetItemCount(pickupDef.itemIndex) <= 0)
+                        {
+                            Logger.LogWarning($"'{requesterName}' tried to drop an item they don't have! ({pickupDef.itemIndex})");
+                            return;
+                        }
+                        inv.RemoveItem(pickupDef.itemIndex, 1);
+                    }
+
+                    var transform = charMaster.GetBody()?.coreTransform;
+                    if (transform != null)
+                    {
+                        PickupDropletController.CreatePickupDroplet(pickupDef.pickupIndex,
+                                                                    transform.position,
+                                                                    transform.up * 15f + transform.forward * 10f);
+                    }
+
+                    Logger.LogInfo($"'{requesterName}' dropped '{Language.GetString(pickupDef.nameToken)}'");
+                }
+                else
+                {
+                    Logger.LogDebug($"'{requesterName}' tried to drop an item but is not allowed.");
+                }
+            }
+            else
+            {
+                Logger.LogWarning("DropLastItem called on client!");
+            }
         }
 
         private void GenericPickupController_GrantItem(On.RoR2.GenericPickupController.orig_GrantItem orig, GenericPickupController self, CharacterBody body, Inventory inventory)
@@ -69,88 +131,6 @@ namespace UnosMods.ToolbotEquipmentSwap
         private KeyCode? GetKey(ConfigEntry<string> param)
         {
             return Enum.TryParse(param.Value, out KeyCode result) ? (KeyCode?)result : null;
-        }
-
-        public void DropLastItem()
-        {
-            if (!NetworkServer.active)
-            {
-                CmdDropItem.Invoke(new DropItemsMessage());
-                return;
-            }
-
-            var player = PlayerCharacterMasterController.instances[0];
-            var inv = player.master.inventory;
-
-            if (inv == null || !LastPickedUpItem.ContainsKey(inv) || LastPickedUpItem[inv] == PickupIndex.none || !inv.itemAcquisitionOrder.Any())
-            {
-                Logger.LogWarning($"Received item drop request from host '{player.networkUser?.userName}' but they cannot drop an item right now.");
-                return;
-            }
-
-            PickupDef pickupDef = PickupCatalog.GetPickupDef(LastPickedUpItem[inv]);
-
-            Logger.LogInfo($"Dropping item '{pickupDef.internalName}' for host '{player.networkUser?.userName}'");
-            LastPickedUpItem[inv] = PickupIndex.none;
-            DropItem(player, pickupDef);
-        }
-
-        public void DoDropItem(NetworkUser user, MessageBase message)
-        {
-            Logger.LogDebug($"Attempting item drop for client '{user.userName}'");
-            var master = user.master;
-            var body = master?.GetBody(); // If master is not null, invoke GetBody() on it (https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/operators/member-access-operators#null-conditional-operators--and-)
-            if (body == null) // If master and body are null
-            {
-                Logger.LogError($"Network User '{user.userName}' has no body.");
-                return;
-            }
-            
-            var inv = master.inventory;
-            if (inv == null || !LastPickedUpItem.ContainsKey(inv) || LastPickedUpItem[inv] == PickupIndex.none || !inv.itemAcquisitionOrder.Any())
-            {
-                Logger.LogWarning($"Received item drop request from client '{user.userName}' but they cannot drop an item right now.");
-                return;
-            }
-
-            PickupDef pickupDef = PickupCatalog.GetPickupDef(LastPickedUpItem[inv]);
-
-            Logger.LogInfo($"Dropping item '{pickupDef.internalName}' for client '{user.userName}'");
-            LastPickedUpItem[inv] = PickupIndex.none;
-            DropItem(user.masterController, pickupDef);
-        }
-
-        public bool DropItem(PlayerCharacterMasterController player, PickupDef pickupDef)
-        {
-            if (!NetworkServer.active)
-            {
-                Debug.LogWarning("[Server] function 'System.Boolean UnosMods.DropItems::DropItem(RoR2.PlayerCharacterMasterController,RoR2.PickupIndex)' called on client");
-                return false;
-            }
-
-            var inv = player.master?.inventory;
-            if (inv == null)
-                return false;
-            
-            Logger.LogDebug($"Dropping {Language.GetString(pickupDef.internalName)} (equip: {pickupDef.equipmentIndex}, item: {pickupDef.itemIndex})");
-            if (pickupDef.equipmentIndex != EquipmentIndex.None)
-            {
-                if (inv.GetEquipmentIndex() != pickupDef.equipmentIndex)
-                    return false;
-                inv.SetEquipmentIndex(EquipmentIndex.None);
-            }
-            else
-            {
-                if (inv.GetItemCount(pickupDef.itemIndex) <= 0)
-                    return false;
-                inv.RemoveItem(pickupDef.itemIndex, 1);
-            }
-            
-            var transform = player.master.GetBody().coreTransform;
-            PickupDropletController.CreatePickupDroplet(pickupDef.pickupIndex, 
-                                                        transform.position, 
-                                                        transform.up * 15f + transform.forward * 10f);
-            return true;
         }
     }
 }

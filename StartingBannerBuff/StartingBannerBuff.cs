@@ -1,18 +1,17 @@
-﻿using System;
-using RoR2;
-using BepInEx;
+﻿using BepInEx;
 using BepInEx.Configuration;
+using RoR2;
 using UnityEngine.Networking;
 
-namespace UnosMods.StartingSpeedBuff
+namespace Unordinal.StartingBannerBuff
 {
     [BepInDependency(R2API.R2API.PluginGUID)]
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
-    public class StartingSpeedBuff : BaseUnityPlugin
+    public class StartingBannerBuff : BaseUnityPlugin
     {
-        public const string PluginName = "Starting Speed Buff";
-        public const string PluginGUID = "com.unordinal.startingspeedbuff";
-        public const string PluginVersion = "1.0.1";
+        public const string PluginName = "Starting Banner Buff";
+        public const string PluginGUID = "Unordinal.StartingBannerBuff";
+        public const string PluginVersion = "1.0.3";
 
         private static ConfigEntry<int> keepBuffUntilStage;
         private bool ShouldBeBuffed
@@ -34,12 +33,15 @@ namespace UnosMods.StartingSpeedBuff
         private void Stage_RespawnCharacter(On.RoR2.Stage.orig_RespawnCharacter orig, Stage self, CharacterMaster characterMaster)
         {
             orig(self, characterMaster);
-            if (Run.instance && Stage.instance && Run.instance.stageClearCount + 1 <= KeepBuffUntilStage) // Toggle buffs until equal KeepBuff var
+            if (NetworkServer.active)
             {
-                if (characterMaster?.GetComponent<PlayerCharacterMasterController>())
+                if (Run.instance && Stage.instance && Run.instance.stageClearCount + 1 <= KeepBuffUntilStage) // Toggle buffs until equal KeepBuff var
                 {
-                    Logger.LogInfo("Player spawned, checking for buff toggle");
-                    ToggleBuff();
+                    if (characterMaster?.GetComponent<PlayerCharacterMasterController>())
+                    {
+                        Logger.LogInfo("Player spawned, checking for buff toggle");
+                        ToggleBuff();
+                    }
                 }
             }
         }
@@ -68,7 +70,7 @@ namespace UnosMods.StartingSpeedBuff
 
         private void InitConfig()
         {
-            keepBuffUntilStage = Config.Bind("StartingSpeedBuff", "KeepBuffUntilStage", 3, "Keeps the buff until the given stage. (2-20, Default: 3)");
+            keepBuffUntilStage = Config.Bind(nameof(StartingBannerBuff), "KeepBuffUntilStage", 3, "Keeps the buff until the given stage. (2-20, Default: 3)");
         }
 
         /*private static int SpeedBuffPercent

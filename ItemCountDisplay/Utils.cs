@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using RoR2;
 
-namespace ItemCountDisplay
+namespace Unordinal.ItemCountDisplay
 {
     public static class Utils
     {

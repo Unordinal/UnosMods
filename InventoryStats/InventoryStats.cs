@@ -1,5 +1,4 @@
-﻿#define DEBUG
-using System;
+﻿using System;
 using RoR2;
 using RoR2.UI;
 using BepInEx;
@@ -14,11 +13,12 @@ namespace Unordinal.InventoryStats
 {
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     [BepInDependency(R2API.R2API.PluginGUID)]
+    [NetworkCompatibility(CompatibilityLevel.NoNeedForSync)]
     public class InventoryStats : BaseUnityPlugin
     {
-        public const string PluginName = "InventoryStats";
-        public const string PluginVersion = "1.0.1";
-        public const string PluginGUID = "com.unordinal.inventorystats";
+        public const string PluginGUID = "Unordinal.InventoryStats";
+        public const string PluginName = "Inventory Stats";
+        public const string PluginVersion = "1.0.3";
         internal static new BepInEx.Logging.ManualLogSource Logger { get; private set; }
 
         public static ConfigEntry<bool> HideNonStackingStatsEntry { get; private set; }

@@ -1,24 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using UnityEngine.UI;
-using RoR2;
-using RoR2.UI;
-using BepInEx;
-using BepInEx.Configuration;
+﻿using BepInEx;
 using BepInEx.Logging;
 using R2API.Utils;
+using RoR2;
+using RoR2.UI;
+using System.Linq;
 using System.Text;
+using UnityEngine.UI;
 
-namespace ItemCountDisplay
+namespace Unordinal.ItemCountDisplay
 {
 
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     public class ItemCountDisplay : BaseUnityPlugin
     {
-        public const string PluginName = "ItemCountDisplay";
-        public const string PluginVersion = "1.0.0";
-        public const string PluginGUID = "com.Unordinal.ItemCountDisplay";
+        public const string PluginGUID = "Unordinal.ItemCountDisplay";
+        public const string PluginName = "Item Count Display";
+        public const string PluginVersion = "1.0.2";
 
         public static new ManualLogSource Logger { get; private set; }
 
@@ -67,7 +64,7 @@ namespace ItemCountDisplay
             StringBuilder sb = new StringBuilder();
             if (itemCount > 0)
             {
-                sb.Append($"<nobr><color=#FFF>{itemCount.ToString()} ");
+                sb.Append($"<nobr><color=#FFF>{itemCount} ");
                 sb.Append("[");
                 foreach (var pair in tierCountMapFiltered)
                 {
@@ -82,6 +79,7 @@ namespace ItemCountDisplay
             }
             sb.Append($"${master.money}</nobr>");
             self.moneyText.text = sb.ToString();
+            self.moneyText.overflowMode = TMPro.TextOverflowModes.Overflow;
         }
     }
 }

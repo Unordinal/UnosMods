@@ -2,7 +2,7 @@
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace UnosMods.StartingItemsPicker
+namespace Unordinal.StartingItemsPicker
 {
     public class GUIClickController : Selectable, IPointerClickHandler
     {

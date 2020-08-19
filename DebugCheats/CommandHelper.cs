@@ -5,7 +5,7 @@ using System.Collections;
 using System.Linq;
 using System.Reflection;
 
-namespace UnosMods.DebugCheats
+namespace Unordinal.DebugCheats
 {
     /*
     This code belongs to Wildbook. 

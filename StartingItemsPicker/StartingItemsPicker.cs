@@ -1,57 +1,66 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using BepInEx;
+﻿using BepInEx;
 using BepInEx.Configuration;
+using BepInEx.Logging;
 using LeTai.Asset.TranslucentImage;
-using MiniRpcLib;
-using MiniRpcLib.Action;
+using R2API.Networking;
+using R2API.Networking.Interfaces;
 using R2API.Utils;
 using RoR2;
 using RoR2.UI;
-using TMPro;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Networking;
 using UnityEngine.UI;
+using Unordinal.StartingItemsPicker.Networking;
 
-namespace UnosMods.StartingItemsPicker
+namespace Unordinal.StartingItemsPicker
 {
     [BepInDependency(R2API.R2API.PluginGUID)]
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
+    [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod)]
+    [R2APISubmoduleDependency(nameof(NetworkingAPI))]
     public class StartingItemsPicker : BaseUnityPlugin
     {
-        public const string PluginGUID = "com.unordinal.startingitemspicker";
+        public const string PluginGUID = "Unordinal.StartingItemsPicker";
         public const string PluginName = "Starting Items Picker";
-        public const string PluginVersion = "1.0.1";
-        private const string PluginRpcGUID = "UnosMods.StartingItemsPicker";
-        public static ConfigEntry<ushort> NumberOfItems { get; private set; }
-        public static ConfigEntry<ushort> AllowedStack { get; private set; }
+        public const string PluginVersion = "1.0.3";
 
-        IRpcAction<Action<NetworkWriter>> NetDisplayItemPickerAction;
-        IRpcAction<Action<NetworkWriter>> NetItemsPickedAction;
+        public static ConfigEntry<byte> SettingMaxItems { get; private set; }
+        public static ConfigEntry<byte> SettingMaxStack { get; private set; }
+
+        public static new ManualLogSource Logger;
+
+        public static bool pickedItems = false;
 
         public void Awake()
         {
-            NumberOfItems = Config.Bind<ushort>(
+            Logger = base.Logger;
+
+            SettingMaxItems = Config.Bind<byte>(
                 "Settings", 
-                "NumberOfItems", 
+                "MaxItems", 
                 2,
-                "The number of items players can pick at the start of the run. (Default: 2)"
+                "The max number of items players can pick at the start of the run. (Default: 2)"
                 );
-            AllowedStack = Config.Bind<ushort>(
+            SettingMaxStack = Config.Bind<byte>(
                 "Settings", 
-                "AllowedStack", 
+                "MaxStack", 
                 1,
-                "How many items of the same type players can receive. (Default: 1)"
+                "The max number of an item players can receive. (Default: 1)"
                 );
 
-            var miniRpc = MiniRpc.CreateInstance(PluginRpcGUID);
-            NetDisplayItemPickerAction = miniRpc.RegisterAction(Target.Client, NetDisplayItemPicker);
-            NetItemsPickedAction = miniRpc.RegisterAction(Target.Server, NetItemsPicked);
             On.RoR2.Run.BeginStage += Run_BeginStage;
+            // On.RoR2.Networking.GameNetworkManager.OnClientConnect += (self, user, t) => { }; // Lets me connect to myself with a second instance of the game. Stops usernames from working properly.
+        }
+
+        public void Start()
+        {
+            NetworkingAPI.RegisterMessageType<ItemPickerInfoMessage>();
+            NetworkingAPI.RegisterMessageType<ItemPickerItemsPickedMessage>();
+            Logger.LogDebug($"Registered NetMessage Types: {nameof(ItemPickerInfoMessage)}, {nameof(ItemPickerItemsPickedMessage)}");
         }
 
         private void Run_BeginStage(On.RoR2.Run.orig_BeginStage orig, Run self)
@@ -59,73 +68,20 @@ namespace UnosMods.StartingItemsPicker
             orig(self);
             if (NetworkServer.active)
             {
-                if ((NumberOfItems.Value > 0 && AllowedStack.Value > 0) && self.stageClearCount == 0)
+                if (SettingMaxItems.Value > 0 && SettingMaxStack.Value > 0 && self.stageClearCount == 0)
                 {
-                    List<ItemIndex> availableItems = Run.instance.availableTier1DropList.Select(x => x.itemIndex).Where(x => x != ItemIndex.None).ToList();
-                    CallNetDisplayItemPicker(NumberOfItems.Value, AllowedStack.Value, availableItems);
+                    List<ItemIndex> allowedItems = Run.instance.availableTier1DropList.Select(x => PickupCatalog.GetPickupDef(x).itemIndex).Where(x => x != ItemIndex.None).ToList();
+                    new ItemPickerInfoMessage
+                    {
+                        MaxItems = SettingMaxItems.Value,
+                        MaxStack = SettingMaxStack.Value,
+                        AllowedItems = allowedItems
+                    }.Send(NetworkDestination.Clients);
                 }
             }
         }
 
-        // Attributes for clarity only, unaffects .dll when compiled with VS.
-
-        [Server]
-        public void CallNetDisplayItemPicker(ushort numberOfItems, ushort allowedStack, List<ItemIndex> availableItems)
-        {
-            Logger.LogDebug(string.Join(",", availableItems));
-            NetDisplayItemPickerAction.Invoke(w =>
-            {
-                w.Write(numberOfItems);
-                w.Write(allowedStack);
-                w.Write(availableItems.Count);
-                foreach (var item in availableItems)
-                    w.WriteItemIndex(item);
-            });
-        }
-
-        [Client]
-        private void NetDisplayItemPicker(NetworkUser user, NetworkReader reader)
-        {
-            var numOfItems = reader.ReadUInt16();
-            var allowedStack = reader.ReadUInt16();
-            var itemCount = reader.ReadInt32();
-            var items = new List<ItemIndex>();
-            for (int i = 0; i < itemCount; i++)
-                items.Add(reader.ReadItemIndex());
-            DisplayItemPicker(items, numOfItems, allowedStack, CallNetItemsPicked);
-        }
-
-        [Client]
-        public void CallNetItemsPicked(List<ItemIndex> items)
-        {
-            NetItemsPickedAction.Invoke(w =>
-            {
-                w.Write(items.Count);
-                foreach (var item in items)
-                    w.WriteItemIndex(item);
-            });
-        }
-
-        [Server]
-        private void NetItemsPicked(NetworkUser user, NetworkReader reader)
-        {
-            var itemCount = reader.ReadInt32();
-            var items = new List<ItemIndex>();
-            for (int i = 0; i < itemCount; i++)
-                items.Add(reader.ReadItemIndex());
-            var inv = user?.master?.inventory;
-            if (inv)
-            {
-                foreach (var item in items)
-                {
-                    inv.GiveItem(item);
-                }
-            }
-        }
-
-        public delegate void ItemsCallback(List<ItemIndex> items);
-
-        public async Task<GameObject> GetItemInventoryDisplayAsync()
+        public static async Task<GameObject> GetItemInventoryDisplayAsync()
         {
             GameObject IID;
             do {
@@ -138,13 +94,13 @@ namespace UnosMods.StartingItemsPicker
 
         // Async because ItemInventoryDisplay isn't immediately spawned at the start and I didn't want to use another hook.
         // Had a coroutine but I find await cleaner in this case.
-        public async void DisplayItemPicker(List<ItemIndex> availableItems, ushort numOfItems, ushort allowedStack, ItemsCallback itemsCB)
+        public static async void DisplayItemPicker(byte maxItems, byte maxStack, List<ItemIndex> allowedItems)
         {
             Debug.Log("Building and displaying Item Picker Window...");
             var itemInventoryDisplay = await GetItemInventoryDisplayAsync();
             float minSize = 400f;
             float maxSize = 1000f;
-            float uiWidth = Mathf.Clamp(availableItems.Count * 20f, minSize, maxSize);
+            float uiWidth = Mathf.Clamp(allowedItems.Count * 20f, minSize, maxSize);
             Logger.LogDebug("itemInventoryDisplay: " + (itemInventoryDisplay != null).ToString());
             
             GameObject pickerUI = new GameObject();
@@ -204,7 +160,7 @@ namespace UnosMods.StartingItemsPicker
             subheader.transform.SetParent(ctr.transform, false);
             subheader.transform.localPosition = new Vector2(0f, -30f);
             subheader.AddComponent<HGTextMeshProUGUI>().fontSize = 18f;
-            subheader.GetComponent<HGTextMeshProUGUI>().text = $"Items Allowed: 0\\{numOfItems}\t\tStacks Allowed: {allowedStack}";
+            subheader.GetComponent<HGTextMeshProUGUI>().text = $"Items Allowed: 0\\{maxItems}\t\tStacks Allowed: {maxStack}";
             subheader.GetComponent<HGTextMeshProUGUI>().color = Color.white;
             subheader.GetComponent<HGTextMeshProUGUI>().alignment = TMPro.TextAlignmentOptions.Center;
             subheader.GetComponent<RectTransform>().anchorMin = new Vector2(0f, 1f);
@@ -232,7 +188,7 @@ namespace UnosMods.StartingItemsPicker
 
             var pickedItems = new List<ItemIndex>();
 
-            foreach (ItemIndex idx in availableItems)
+            foreach (ItemIndex idx in allowedItems)
             {
                 if (idx == ItemIndex.None)
                     continue;
@@ -256,7 +212,7 @@ namespace UnosMods.StartingItemsPicker
                     if (button == PointerEventData.InputButton.Left)
                     {
                         var itemCount = item.GetFieldValue<int>("itemCount");
-                        if (itemCount < allowedStack && pickedItems.Count < numOfItems)
+                        if (itemCount < maxStack && pickedItems.Count < maxItems)
                         {
                             item.SetFieldValue("itemCount", itemCount + 1);
                             pickedItems.Add(idx);
@@ -275,7 +231,7 @@ namespace UnosMods.StartingItemsPicker
                             Logger.LogInfo($"Item removed: {idx}");
                         }
                     }
-                    subheader.GetComponent<HGTextMeshProUGUI>().text = $"Items Allowed: {pickedItems.Count}\\{numOfItems}\t\tStacks Allowed: {allowedStack}";
+                    subheader.GetComponent<HGTextMeshProUGUI>().text = $"Items Allowed: {pickedItems.Count}\\{maxItems}\t\tStacks Allowed: {maxStack}";
                 });
             }
 
@@ -295,9 +251,15 @@ namespace UnosMods.StartingItemsPicker
             var confirmButton = confirmText.AddComponent<GUIClickController>();
             confirmButton.onLeft.AddListener(() =>
             {
-                Logger.LogInfo("Items picked: " + string.Join(",", pickedItems));
+                Logger.LogInfo("Items picked: " + string.Join(", ", pickedItems));
                 Destroy(pickerUI);
-                itemsCB(pickedItems);
+                var itemsPickedMessage = new ItemPickerItemsPickedMessage
+                {
+                    Requester = LocalUserManager.GetFirstLocalUser().cachedMaster,
+                    RequestedItems = pickedItems
+                };
+                itemsPickedMessage.Send(NetworkDestination.Server);
+                StartingItemsPicker.pickedItems = false;
             });
             Logger.LogDebug("receiveButton: " + (confirmText != null).ToString());
             LayoutRebuilder.ForceRebuildLayoutImmediate(itemCtr.GetComponent<RectTransform>());
