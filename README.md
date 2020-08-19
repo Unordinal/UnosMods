@@ -1,4 +1,6 @@
 # UnosRoR2Mods
+# This is all outta date, oops.
+
 ## Mods
 ***Downloads of any released mods are available at https://thunderstore.io/package/Unordinal/***
 
