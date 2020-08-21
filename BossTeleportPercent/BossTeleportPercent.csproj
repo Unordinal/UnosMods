@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\IgnoreAccessModifiers\IgnoreAccessModifiers.cs" Link="IgnoreAccessModifiers.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="Assembly-CSharp">
       <HintPath>..\..\.libs\Assembly-CSharp.dll</HintPath>
     </Reference>

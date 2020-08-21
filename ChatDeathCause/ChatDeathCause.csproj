@@ -90,6 +90,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\IgnoreAccessModifiers\IgnoreAccessModifiers.cs">
+      <Link>IgnoreAccessModifiers.cs</Link>
+    </Compile>
     <Compile Include="ChatDeathCause.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -6,6 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\IgnoreAccessModifiers\IgnoreAccessModifiers.cs" Link="IgnoreAccessModifiers.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="0Harmony">
       <HintPath>..\..\..\..\Games\Steam\steamapps\common\Risk of Rain 2\BepInEx\core\0Harmony.dll</HintPath>
     </Reference>
