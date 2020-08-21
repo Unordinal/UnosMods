@@ -53,6 +53,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EngiAmpWall", "EngiAmpWall\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatDeathCause", "ChatDeathCause\ChatDeathCause.csproj", "{4DAE31D6-5176-4A5C-BD04-87BFAB1025AF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IgnoreAccessModifiers", "IgnoreAccessModifiers\IgnoreAccessModifiers.csproj", "{0D4174E1-B3A7-439A-B333-8FB029DF0A46}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -143,6 +145,10 @@ Global
 		{4DAE31D6-5176-4A5C-BD04-87BFAB1025AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4DAE31D6-5176-4A5C-BD04-87BFAB1025AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4DAE31D6-5176-4A5C-BD04-87BFAB1025AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D4174E1-B3A7-439A-B333-8FB029DF0A46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D4174E1-B3A7-439A-B333-8FB029DF0A46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D4174E1-B3A7-439A-B333-8FB029DF0A46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D4174E1-B3A7-439A-B333-8FB029DF0A46}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
