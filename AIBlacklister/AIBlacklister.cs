@@ -12,17 +12,17 @@ namespace AIBlacklister
 {
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     [BepInDependency(R2API.R2API.PluginGUID)]
-    public class PluginEntry : BaseUnityPlugin
+    public class AIBlacklister : BaseUnityPlugin
     {
         public const string PluginName = "AI Blacklister";
-        public const string PluginGUID = "com.unordinal.aiblacklister";
-        public const string PluginVersion = "1.0.0";
+        public const string PluginGUID = "Unordinal.AIBlacklister";
+        public const string PluginVersion = "1.0.1";
         public static new ManualLogSource Logger { get; private set; }
 
         public void Awake()
         {
             Logger = base.Logger;
-            PluginConfig.Init(Config);
+            AIBlacklisterConfig.Init(Config);
             SetHooks();
         }
 
@@ -45,7 +45,7 @@ namespace AIBlacklister
 
         public static void UpdateAIItemBlacklist()
         {
-            if (PluginConfig.AIItemBlacklist is null)
+            if (AIBlacklisterConfig.AIItemBlacklist is null)
             {
                 Logger.LogError("AI item blacklist was not initialized correctly! Aborting.");
                 return;
@@ -60,17 +60,24 @@ namespace AIBlacklister
                     continue;
                 }
 
-                if (itemDef.DoesNotContainTag(ItemTag.AIBlacklist) && PluginConfig.AIItemBlacklist.Contains(itemDef.itemIndex))
+                if (itemDef.DoesNotContainTag(ItemTag.AIBlacklist) && AIBlacklisterConfig.AIItemBlacklist.Contains(itemDef.itemIndex))
                 {
                     itemDef.tags = itemDef.tags.Add(ItemTag.AIBlacklist);
                     Logger.LogInfo($"Added item '{i}' to AI blacklist.");
                 }
-                else if (itemDef.ContainsTag(ItemTag.AIBlacklist) && !PluginConfig.AIItemBlacklist.Contains(itemDef.itemIndex))
+                else if (itemDef.ContainsTag(ItemTag.AIBlacklist) && !AIBlacklisterConfig.AIItemBlacklist.Contains(itemDef.itemIndex))
                 {
                     itemDef.tags = itemDef.tags.Remove(ItemTag.AIBlacklist);
                     Logger.LogInfo($"Removed item '{i}' from AI blacklist.");
                 }
             }
+
+            Logger.LogDebug($"AI blacklisted items: {string.Join(", ", GetAllAIBlacklistItems())}");
+        }
+
+        private static IEnumerable<ItemIndex> GetAllAIBlacklistItems()
+        {
+            return ItemCatalog.allItems.Where(i => ItemCatalog.GetItemDef(i).ContainsTag(ItemTag.AIBlacklist));
         }
 
         public static IEnumerable<PickupIndex> EquipmentToPickupIndices(IEnumerable<EquipmentIndex> equipIndices)
@@ -83,7 +90,7 @@ namespace AIBlacklister
 
         private static EquipmentIndex GetRandomNonBlacklistEquipment()
         {
-            IEnumerable<PickupIndex> blacklistEquips = EquipmentToPickupIndices(PluginConfig.AIEquipBlacklist);
+            IEnumerable<PickupIndex> blacklistEquips = EquipmentToPickupIndices(AIBlacklisterConfig.AIEquipBlacklist);
             List<PickupIndex> equipsExceptBlacklist = Run.instance?.availableEquipmentDropList.Except(blacklistEquips).ToList();
 
             if (equipsExceptBlacklist is null)
@@ -98,6 +105,8 @@ namespace AIBlacklister
 
         private static void GiveRandomNonBlacklistEquipment(Inventory inv)
         {
+            if (!NetworkServer.active) return;
+
             Logger.LogDebug("Giving random non-blacklisted equipment to inventory.");
 
             EquipmentIndex equip = GetRandomNonBlacklistEquipment();
@@ -128,10 +137,7 @@ namespace AIBlacklister
                 c.Emit(OpCodes.Ldloc_0);
                 c.EmitDelegate<Action<Inventory>>((inv) =>
                 {
-                    if (NetworkServer.active)
-                    {
-                        GiveRandomNonBlacklistEquipment(inv);
-                    }
+                    GiveRandomNonBlacklistEquipment(inv);
                 });
             }
             else

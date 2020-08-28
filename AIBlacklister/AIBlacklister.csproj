@@ -5,6 +5,8 @@
     <Authors>Unordinal</Authors>
     <Company />
     <Copyright>Unordinal</Copyright>
+    <Version>1.0.1</Version>
+    <RunPostBuildEvent>Always</RunPostBuildEvent>
   </PropertyGroup>
 
   <ItemGroup>

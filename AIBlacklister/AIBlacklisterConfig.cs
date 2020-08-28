@@ -1,22 +1,19 @@
 ﻿using BepInEx.Configuration;
 using RoR2;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
 
 namespace AIBlacklister
 {
-    public static class PluginConfig
+    public static class AIBlacklisterConfig
     {
-        private static ConfigFile Config { get; set; }
-
         private static readonly ItemIndex[] defaultItemBlacklist =
         {
-            ItemIndex.FallBoots, ItemIndex.Feather, ItemIndex.Mushroom, ItemIndex.WardOnLevel, ItemIndex.StunChanceOnHit, 
+            ItemIndex.Dagger, ItemIndex.FallBoots, ItemIndex.Feather, ItemIndex.Mushroom, ItemIndex.WardOnLevel, ItemIndex.StunChanceOnHit,
             ItemIndex.Firework, ItemIndex.TreasureCache, ItemIndex.BossDamageBonus, ItemIndex.HeadHunter, ItemIndex.KillEliteFrenzy,
-            ItemIndex.ExecuteLowHealthElite, ItemIndex.TPHealingNova, ItemIndex.Thorns, ItemIndex.ShockNearby
+            ItemIndex.ExecuteLowHealthElite, ItemIndex.TPHealingNova, ItemIndex.LunarUtilityReplacement, ItemIndex.Thorns, 
+            ItemIndex.LunarPrimaryReplacement, ItemIndex.Squid, ItemIndex.FocusConvergence, ItemIndex.MonstersOnShrineUse,
+            ItemIndex.ShockNearby
         };
         private static readonly EquipmentIndex[] defaultEquipBlacklist =
         {
@@ -73,8 +70,6 @@ namespace AIBlacklister
 
         public static void Init(ConfigFile config)
         {
-            Config = config;
-
             AIItemBlacklistEntry = config.Bind(
                 "AIBlacklister",
                 "ItemBlacklist",
@@ -94,7 +89,7 @@ namespace AIBlacklister
         {
             ItemIndex index = ItemCatalog.FindItemIndex(indexStr);
             if (index == ItemIndex.None)
-                PluginEntry.Logger.LogWarning($"{indexStr} is not a valid ItemIndex.");
+                AIBlacklister.Logger.LogWarning($"{indexStr} is not a valid ItemIndex.");
 
             return index;
         }
@@ -103,7 +98,7 @@ namespace AIBlacklister
         {
             EquipmentIndex index = EquipmentCatalog.FindEquipmentIndex(indexStr);
             if (index == EquipmentIndex.None)
-                PluginEntry.Logger.LogWarning($"{indexStr} is not a valid EquipmentIndex.");
+                AIBlacklister.Logger.LogWarning($"{indexStr} is not a valid EquipmentIndex.");
 
             return index;
         }
