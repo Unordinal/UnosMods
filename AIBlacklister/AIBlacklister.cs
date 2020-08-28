@@ -7,11 +7,13 @@ using BepInEx;
 using BepInEx.Logging;
 using MonoMod.Cil;
 using Mono.Cecil.Cil;
+using R2API.Utils;
 
 namespace AIBlacklister
 {
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     [BepInDependency(R2API.R2API.PluginGUID)]
+    [NetworkCompatibility(CompatibilityLevel.NoNeedForSync, VersionStrictness.DifferentModVersionsAreOk)]
     public class AIBlacklister : BaseUnityPlugin
     {
         public const string PluginName = "AI Blacklister";

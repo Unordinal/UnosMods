@@ -74,14 +74,14 @@ namespace AIBlacklister
                 "AIBlacklister",
                 "ItemBlacklist",
                 string.Join(", ", defaultItemBlacklist),
-                "The list of item indices that the AI cannot receive. The default values include any vanilla-blacklisted items.\n" +
+                "The list of item indices that the AI cannot receive. The default values include the vanilla-blacklisted items.\n" +
                 "See 'https://github.com/risk-of-thunder/R2Wiki/wiki/Item-&-Equipment-IDs-and-Names' for a list of valid IDs. (Use the code name.)");
 
             AIEquipBlacklistEntry = config.Bind(
                 "AIBlacklister",
                 "EquipmentBlacklist",
                 string.Join(", ", defaultEquipBlacklist),
-                "The list of equipment indices that the AI cannot receive (currently only the Scavenger). The default values include any vanilla-blacklisted items.\n" +
+                "The list of equipment indices that the AI cannot receive (currently only the Scavenger). The default values include the vanilla-blacklisted items.\n" +
                 "See 'https://github.com/risk-of-thunder/R2Wiki/wiki/Item-&-Equipment-IDs-and-Names' for a list of valid IDs. (Use the code name.)");
         }
 
