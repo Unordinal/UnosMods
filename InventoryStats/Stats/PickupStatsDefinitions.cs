@@ -658,8 +658,7 @@ namespace Unordinal.InventoryStats.Stats
                     new Stat(
                         text: "Duration",
                         formula: count => StackFormulas.Linear(count, 7.0f),
-                        formatter: new TimeStatFormatter(),
-                        stacks: false
+                        formatter: new TimeStatFormatter()
                         ),
                     new Stat(
                         text: "Damage Bonus",
