@@ -1,230 +1,175 @@
-﻿//#define DEBUG
+﻿using BepInEx;
+using BepInEx.Logging;
+using EntityStates.Toolbot;
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
+using R2API.Networking;
+using R2API.Networking.Interfaces;
+using R2API.Utils;
+using RoR2;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
-using RoR2;
-using BepInEx;
-using BepInEx.Configuration;
-using MiniRpcLib;
-using MiniRpcLib.Action;
-using MiniRpcLib.Func;
-using Mono.Cecil.Cil;
-using MonoMod.Cil;
-using EntityStates.Toolbot;
+using Unordinal.ToolbotEquipmentSwap.Networking;
 
-namespace UnosMods.ToolbotEquipmentSwap
+namespace Unordinal.ToolbotEquipmentSwap
 {
     [BepInDependency(R2API.R2API.PluginGUID)]
-    [BepInDependency(MiniRpcPlugin.Dependency)]
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
+    [R2APISubmoduleDependency(nameof(NetworkingAPI))]
+    [NetworkCompatibility(CompatibilityLevel.NoNeedForSync)]
     public class ToolbotEquipmentSwap : BaseUnityPlugin
     {
         public const string PluginName = "ToolbotEquipmentSwap";
-        public const string PluginGUID = "com.unordinal.toolbotequipmentswap";
-        public const string PluginVersion = "1.0.2";
-        private const string PluginRpcGUID = "UnosMods.ToolbotEquipmentSwap";
+        public const string PluginVersion = "1.1.0";
+        public const string PluginGUID = "Unordinal.ToolbotEquipmentSwap";
 
-        public IRpcAction<bool> CmdSwitchEquipmentSlots { get; private set; }
-        public IRpcFunc<bool, TESClientModConfig> CmdGetClientModConfig { get; private set; }
+        internal static new ManualLogSource Logger;
 
-        public static ConfigEntry<string> equipSwapKeyString;
-        public static ConfigEntry<bool> stopAutoSwap;
-        public static KeyCode? equipSwapKey;
-
-        public static Dictionary<NetworkUser, TESClientModConfig> usersModConfig = new Dictionary<NetworkUser, TESClientModConfig>();
+        public static readonly Dictionary<NetworkUser, (KeyCode SwapKey, bool SwapOnRetool)> ClientsSettings = new Dictionary<NetworkUser, (KeyCode, bool)>();
 
         internal void Awake()
         {
-            equipSwapKeyString = Config.Bind("ToolbotEquipmentSwap", "SwapKey", KeyCode.X.ToString(), "The key to swap between MUL-T's equipment slots. (Default: X)");
-            stopAutoSwap = Config.Bind("ToolbotEquipmentSwap", "StopAutoSwap", true, "Whether to stop the equipment slot changing when using MUL-T's Retool ability. (Default: true)");
-
-            equipSwapKey = GetKey(equipSwapKeyString);
-            if (equipSwapKey == null)
-                Logger.LogError("Invalid SwapKey for ToolbotEquipmentSwap.");
-
-            var miniRpc = MiniRpc.CreateInstance(PluginRpcGUID);
-            CmdSwitchEquipmentSlots = miniRpc.RegisterAction<bool>(Target.Server, DoSwitchEquipmentSlots);
-            CmdGetClientModConfig = miniRpc.RegisterFunc<bool, TESClientModConfig>(Target.Client, (user, b) =>
-            {
-                return new TESClientModConfig(equipSwapKeyString.Value, stopAutoSwap.Value);
-            });
-
-            // Do IL replacement to stop automatic equipment slot swapping if wanted
-            Logger.LogInfo("Modifying ToolbotStances A & B OnEnter()");
-            IL.EntityStates.Toolbot.ToolbotStanceA.OnEnter += ToolbotStanceA_OnEnter;
-            IL.EntityStates.Toolbot.ToolbotStanceB.OnEnter += ToolbotStanceB_OnEnter;
+            Logger = base.Logger;
+            PluginConfig.Initialize(Config);
+            //On.RoR2.Networking.GameNetworkManager.OnClientConnect += (self, user, nc) => { };
+            AddBaseHooks();
+            AddStanceHooks();
         }
 
-        private void ToolbotStanceA_OnEnter(ILContext il)
+        internal void Start()
         {
-            try
-            {
-                var c = new ILCursor(il);
-                c.GotoNext(
-                    x => x.MatchCall<NetworkServer>("get_active"),          // NetworkServer.active
-                    x => x.MatchBrfalse(out _),                             // break if above is false
-                    x => x.MatchLdarg(0),                                   // Argument 0 (OnEnter method itself)
-                    x => x.MatchLdcI4(0),                                   // 0 (byte, Equipment slot)
-                    x => x.MatchCall<ToolbotStanceBase>("SetEquipmentSlot") // SetEquipmentSlot((byte)LdcI4.0)
-                    );
-                Logger.LogDebug(c);
-                c.Index += 2;
-                c.RemoveRange(3);
-                c.Emit(OpCodes.Ldarg_0);
-                c.EmitDelegate<Action<ToolbotStanceBase>>(stance =>
-                {
-                    NetworkUser user = stance.GetFieldValue<Inventory>("inventory")?.GetComponent<PlayerCharacterMasterController>().networkUser ?? null;
-                    var stopAutoSwap = false;
-
-                    var config = GetClientModConfig(user);
-                    if (config != null)
-                        stopAutoSwap = config.StopAutoSwap;
-
-                    if (!stopAutoSwap)
-                        stance.InvokeMethod("SetEquipmentSlot", (byte)0);
-                });
-#if (DEBUG)
-                Logger.LogDebug(il);
-#endif
-                Logger.LogInfo("Modified ToolbotStanceA.OnEnter()");
-            }
-            catch (Exception e)
-            {
-                Logger.LogError($"There was an error modifying ToolbotStanceA.OnEnter():\n{e}");
-            }
-        }
-
-        private void ToolbotStanceB_OnEnter(ILContext il)
-        {
-            try
-            {
-                var c = new ILCursor(il);
-                c.GotoNext(
-                    x => x.MatchCall<NetworkServer>("get_active"),          // NetworkServer.active
-                    x => x.MatchBrfalse(out _),                             // break if above is false
-                    x => x.MatchLdarg(0),                                   // Argument 0 (OnEnter method itself)
-                    x => x.MatchLdcI4(1),                                   // 1 (byte, Equipment slot)
-                    x => x.MatchCall<ToolbotStanceBase>("SetEquipmentSlot") // SetEquipmentSlot((byte)LdcI4.1)
-                    );
-                Logger.LogDebug(c);
-                c.Index += 2;
-                c.RemoveRange(3);
-                c.Emit(OpCodes.Ldarg_0);
-                c.EmitDelegate<Action<ToolbotStanceBase>>(stance =>
-                {
-                    NetworkUser user = stance.GetFieldValue<Inventory>("inventory")?.GetComponent<PlayerCharacterMasterController>().networkUser ?? null;
-                    var stopAutoSwap = false;
-
-                    var config = GetClientModConfig(user);
-                    if (config != null)
-                        stopAutoSwap = config.StopAutoSwap;
-
-                    if (!stopAutoSwap)
-                        stance.InvokeMethod("SetEquipmentSlot", (byte)1);
-                });
-#if (DEBUG)
-                Logger.LogDebug(il);
-#endif
-                Logger.LogInfo("Modified ToolbotStanceB.OnEnter()");
-            }
-            catch (Exception e)
-            {
-                Logger.LogError($"There was an error modifying ToolbotStanceB.OnEnter():\n{e}");
-            }
-        }
-
-        public TESClientModConfig GetClientModConfig(NetworkUser user)
-        {
-            if (!user)
-                return null;
-
-            if (!usersModConfig.ContainsKey(user))
-            {
-                usersModConfig.Add(user, null);
-                CmdGetClientModConfig.Invoke(true, CMC =>
-                {
-                    if (CMC != null)
-                    {
-                        usersModConfig[user] = CMC;
-                    }
-                }, user);
-            }
-            return usersModConfig[user];
-        }
-
-        public void InvokeSwitchEquipmentSlots()
-        {
-            var user = LocalUserManager.GetFirstLocalUser().currentNetworkUser;
-            if (!user)
-            {
-                Logger.LogWarning("Attempt to invoke SwitchEquipmentSlots on invalid user.");
-                return;
-            }
-
-            if (!NetworkServer.active)
-            {
-                CmdSwitchEquipmentSlots.Invoke(true);
-                return;
-            }
-
-            Logger.LogDebug($"Attempting to switch equipment slots for host '{user.userName}'");
-
-            if (SwitchEquipmentSlots(user.master?.inventory))
-                Logger.LogInfo($"'{user.userName}' switched to equipment slot '{user.master.inventory.activeEquipmentSlot}'");
-            else
-                Logger.LogWarning($"Unable to switch equipment slots for host '{user.userName}'");
-        }
-
-        public void DoSwitchEquipmentSlots(NetworkUser user, bool b)
-        {
-            Logger.LogDebug($"Attempting to switch equipment slots for client '{user.userName}'");
-
-            if (SwitchEquipmentSlots(user.master?.inventory))
-                Logger.LogInfo($"'{user.userName}' switched to equipment slot '{user.master.inventory.activeEquipmentSlot}'");
-            else
-                Logger.LogWarning($"Unable to switch equipment slots for client '{user.userName}'");
-        }
-
-        public bool SwitchEquipmentSlots(Inventory inv)
-        {
-            var body = inv.GetComponentInParent<PlayerCharacterMasterController>()?.master?.GetBody();
-            if (!inv || !body || !BodyIsSurvivorIndex(body, SurvivorIndex.Toolbot))
-            {
-                Logger.LogWarning($"SwitchEquipmentSlots was called on an invalid character. ({(inv ? (body ? "Character is not MUL-T." : "Body is null.") : "Inventory is null.")})");
-                return false;
-            }
-
-            if (inv.activeEquipmentSlot == 0)
-                inv.SetActiveEquipmentSlot(1);
-            else
-                inv.SetActiveEquipmentSlot(0);
-            return true;
-        }
-
-        public bool BodyIsSurvivorIndex(CharacterBody body, SurvivorIndex index)
-        {
-            var bodyPrefab = body?.master?.bodyPrefab;
-            if (!bodyPrefab)
-            {
-                Logger.LogWarning($"Body passed to BodyIsSurvivorIndex is invalid. ({(body ? "bodyPrefab is null." : "Body is null.")})");
-                return false;
-            }
-            return SurvivorCatalog.FindSurvivorDefFromBody(bodyPrefab)?.survivorIndex == index;
-        }
-
-        public KeyCode? GetKey(ConfigEntry<string> param)
-        {
-            if (!Enum.TryParse(param.Value, out KeyCode result))
-                return null;
-            return result;
+            // register net messages
+            //NetworkingAPI.RegisterRequestTypes<ClientConfigRequest, ClientConfigRequestReply>();
+            NetworkingAPI.RegisterCommandType<ClientConfigCommand>();
+            NetworkingAPI.RegisterMessageType<ClientConfigMessage>();
+            NetworkingAPI.RegisterMessageType<EquipSwapMessage>();
         }
 
         internal void Update()
         {
-            if (Run.instance && LocalUserManager.GetFirstLocalUser()?.currentNetworkUser?.GetCurrentBody() != null)
-                if (equipSwapKey != null && Input.GetKeyDown(equipSwapKey.Value))
-                    InvokeSwitchEquipmentSlots();
+            if (Run.instance && LocalUserManager.GetFirstLocalUser().cachedBody != null)
+            {
+                if (Input.GetKeyDown(PluginConfig.SwapKey))
+                {
+                    var body = LocalUserManager.GetFirstLocalUser().cachedBody;
+                    int bodyIndex = body.bodyIndex;
+                    var survivorIndex = SurvivorCatalog.GetSurvivorIndexFromBodyIndex(bodyIndex);
+                    if (survivorIndex == SurvivorIndex.Toolbot)
+                    {
+                        new EquipSwapMessage
+                        { 
+                            NetUser = LocalUserManager.GetFirstLocalUser().currentNetworkUser 
+                        }.Send(NetworkDestination.Server);
+                    }
+                    else
+                    {
+                        Logger.LogDebug($"bodyIndex of cachedBody is not Toolbot.\nBody: {Language.GetString(body.baseNameToken)}\nBodyIndex: {bodyIndex}\nSurvivorIndex: {survivorIndex}");
+                    }
+                }
+            }
+        }
+
+        internal void AddBaseHooks()
+        {
+            Run.onRunStartGlobal += Run_onRunStartGlobal;
+        }
+
+        internal void RemoveBaseHooks()
+        {
+            Run.onRunStartGlobal -= Run_onRunStartGlobal;
+        }
+
+        internal void AddStanceHooks()
+        {
+            Logger.LogDebug("Adding IL hooks to Toolbot Stance EntityStates.");
+            IL.EntityStates.Toolbot.ToolbotStanceA.OnEnter += ToolbotStanceA_OnEnter;
+            IL.EntityStates.Toolbot.ToolbotStanceB.OnEnter += ToolbotStanceB_OnEnter;
+        }
+
+        internal void RemoveStanceHooks()
+        {
+            Logger.LogDebug("Removing IL hooks from Toolbot Stance EntityStates.");
+            IL.EntityStates.Toolbot.ToolbotStanceA.OnEnter -= ToolbotStanceA_OnEnter;
+            IL.EntityStates.Toolbot.ToolbotStanceB.OnEnter -= ToolbotStanceB_OnEnter;
+        }
+
+        private void Run_onRunStartGlobal(Run obj)
+        {
+            Config.Reload();
+
+            if (NetworkServer.active)
+            {
+                ClientsSettings.Clear();
+                //new ClientConfigRequest().Send<ClientConfigRequest, ClientConfigRequestReply>(NetworkDestination.Clients);
+                new ClientConfigCommand().Send(NetworkDestination.Clients);
+            }
+        }
+
+        private void HandleToolbotStanceChange(ToolbotStanceBase stance)
+        {
+            if (NetworkServer.active)
+            {
+                byte swapToSlot = (byte)((stance is ToolbotStanceA) ? 1 : 0);
+                bool swapOnRetool = true;
+
+                NetworkUser user = stance.inventory?.GetComponent<PlayerCharacterMasterController>()?.networkUser ?? null;
+                if (ClientsSettings.ContainsKey(user))
+                {
+                    swapOnRetool = ClientsSettings[user].SwapOnRetool;
+                }
+                
+                if (swapOnRetool) stance.SetEquipmentSlot(swapToSlot);
+            }
+        }
+
+        private void ToolbotStanceA_OnEnter(ILContext il)
+        {
+            ILCursor c = new ILCursor(il);
+            bool success = c.TryGotoNext(
+                x => x.MatchCall<NetworkServer>("get_active"),          // NetworkServer.active
+                x => x.MatchBrfalse(out _),                             // Break if above is false
+                x => x.MatchLdarg(0),                                   // Argument 0 (which is the enclosing OnEnter method itself)
+                x => x.MatchLdcI4(0),                                   // 0 (byte, equipment slot 0)
+                x => x.MatchCall<ToolbotStanceBase>("SetEquipmentSlot") // SetEquipmentSlot((byte)LdcI4.0)
+                );
+
+            if (success)
+            {
+                c.Index += 2;
+                c.RemoveRange(3);
+                c.Emit(OpCodes.Ldarg_0);
+                c.EmitDelegate<Action<ToolbotStanceBase>>(HandleToolbotStanceChange);
+            }
+            else
+            {
+                Logger.LogWarning($"Unable to IL hook 'EntityStates.Toolbot.ToolbotStanceA.OnEnter'. The mod may need an update.");
+            }
+        }
+        
+        private void ToolbotStanceB_OnEnter(ILContext il)
+        {
+            ILCursor c = new ILCursor(il);
+            bool success = c.TryGotoNext(
+                x => x.MatchCall<NetworkServer>("get_active"),          // NetworkServer.active
+                x => x.MatchBrfalse(out _),                             // Break if above is false
+                x => x.MatchLdarg(0),                                   // Argument 0 (which is the enclosing OnEnter method itself)
+                x => x.MatchLdcI4(1),                                   // 1 (byte, equipment slot 1)
+                x => x.MatchCall<ToolbotStanceBase>("SetEquipmentSlot") // SetEquipmentSlot((byte)LdcI4.0)
+                );
+
+            if (success)
+            {
+                c.Index += 2;
+                c.RemoveRange(3);
+                c.Emit(OpCodes.Ldarg_0);
+                c.EmitDelegate<Action<ToolbotStanceBase>>(HandleToolbotStanceChange);
+            }
+            else
+            {
+                Logger.LogWarning($"Unable to IL hook 'EntityStates.Toolbot.ToolbotStanceB.OnEnter'. The mod may need an update.");
+            }
         }
     }
 }
