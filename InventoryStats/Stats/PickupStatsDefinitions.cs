@@ -587,7 +587,7 @@ namespace Unordinal.InventoryStats.Stats
                 {
                     new Stat(
                         text: "Health Threshold",
-                        formula: count => StackFormulas.Hyperbolic(count, 0.20f),
+                        formula: count => StackFormulas.Hyperbolic(count, 0.13f),
                         formatter: new PercentageStatFormatter()
                         )
                 },

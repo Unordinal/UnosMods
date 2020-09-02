@@ -40,6 +40,8 @@ namespace Unordinal.InventoryStats
             On.RoR2.UI.ItemIcon.SetItemIndex += ItemIcon_SetItemIndex;
             IL.RoR2.UI.EquipmentIcon.SetDisplayData += EquipmentIcon_SetDisplayData;
             //On.RoR2.UI.EquipmentIcon.SetDisplayData += EquipmentIcon_SetDisplayData;
+
+            On.RoR2.UI.BuffIcon.Awake += BuffIcon_Awake;
         }
 
         internal void UnregisterHooks()
@@ -131,6 +133,12 @@ namespace Unordinal.InventoryStats
                     UpdatePickupTooltip(icon, equipDef.equipmentIndex);
                 }
             });
+        }
+
+        private void BuffIcon_Awake(On.RoR2.UI.BuffIcon.orig_Awake orig, BuffIcon self)
+        {
+            orig(self);
+            var tooltipProvider = self.gameObject.AddComponent<TooltipProvider>();
         }
 
         // This 'On' hook is just broken no matter what you do - not sure when or if it'll be fixed.
