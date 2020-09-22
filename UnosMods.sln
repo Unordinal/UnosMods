@@ -7,12 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BossTeleportPercent", "Boss
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DebugCheats", "DebugCheats\DebugCheats.csproj", "{4B3E3219-7E0F-479B-A90D-BECB4FA5C649}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnosUtilities", "UnosUtilities\UnosUtilities.csproj", "{4821641A-8889-4642-BA7E-2B2458E06E21}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InfoOnPing", "InfoOnPing\InfoOnPing.csproj", "{743F0BF8-3023-4185-8C72-E839139B2891}"
-	ProjectSection(ProjectDependencies) = postProject
-		{4821641A-8889-4642-BA7E-2B2458E06E21} = {4821641A-8889-4642-BA7E-2B2458E06E21}
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StartingItemsPicker", "StartingItemsPicker\StartingItemsPicker.csproj", "{9B7BBA3F-9990-4FCE-96F1-1A5DC8FAC000}"
 EndProject
@@ -55,6 +50,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatDeathCause", "ChatDeath
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IgnoreAccessModifiers", "IgnoreAccessModifiers\IgnoreAccessModifiers.csproj", "{0D4174E1-B3A7-439A-B333-8FB029DF0A46}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnoUtilities", "UnoUtilities\UnoUtilities.csproj", "{F5AEFBA2-507F-447D-85BE-14754E966B47}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuffIconTooltips", "BuffIconTooltips\BuffIconTooltips.csproj", "{2BE8A703-4DC4-486F-816F-B56D14E23A74}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MountainCombatShrines", "MountainCombatShrines\MountainCombatShrines.csproj", "{C7585110-19DA-483C-9561-8383463F70D8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,10 +70,6 @@ Global
 		{4B3E3219-7E0F-479B-A90D-BECB4FA5C649}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4B3E3219-7E0F-479B-A90D-BECB4FA5C649}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4B3E3219-7E0F-479B-A90D-BECB4FA5C649}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4821641A-8889-4642-BA7E-2B2458E06E21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4821641A-8889-4642-BA7E-2B2458E06E21}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4821641A-8889-4642-BA7E-2B2458E06E21}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4821641A-8889-4642-BA7E-2B2458E06E21}.Release|Any CPU.Build.0 = Release|Any CPU
 		{743F0BF8-3023-4185-8C72-E839139B2891}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{743F0BF8-3023-4185-8C72-E839139B2891}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{743F0BF8-3023-4185-8C72-E839139B2891}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -149,6 +146,18 @@ Global
 		{0D4174E1-B3A7-439A-B333-8FB029DF0A46}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0D4174E1-B3A7-439A-B333-8FB029DF0A46}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0D4174E1-B3A7-439A-B333-8FB029DF0A46}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5AEFBA2-507F-447D-85BE-14754E966B47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5AEFBA2-507F-447D-85BE-14754E966B47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5AEFBA2-507F-447D-85BE-14754E966B47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5AEFBA2-507F-447D-85BE-14754E966B47}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2BE8A703-4DC4-486F-816F-B56D14E23A74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BE8A703-4DC4-486F-816F-B56D14E23A74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BE8A703-4DC4-486F-816F-B56D14E23A74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BE8A703-4DC4-486F-816F-B56D14E23A74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7585110-19DA-483C-9561-8383463F70D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7585110-19DA-483C-9561-8383463F70D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7585110-19DA-483C-9561-8383463F70D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7585110-19DA-483C-9561-8383463F70D8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -54,8 +54,7 @@ namespace Unordinal.ToolbotEquipmentSwap
                 if (Input.GetKeyDown(PluginConfig.SwapKey))
                 {
                     var body = LocalUserManager.GetFirstLocalUser().cachedBody;
-                    int bodyIndex = body.bodyIndex;
-                    var survivorIndex = SurvivorCatalog.GetSurvivorIndexFromBodyIndex(bodyIndex);
+                    var survivorIndex = SurvivorCatalog.GetSurvivorIndexFromBodyIndex(body.bodyIndex);
                     if (survivorIndex == SurvivorIndex.Toolbot)
                     {
                         new EquipSwapMessage
@@ -65,7 +64,7 @@ namespace Unordinal.ToolbotEquipmentSwap
                     }
                     else
                     {
-                        Logger.LogDebug($"bodyIndex of cachedBody is not Toolbot.\nBody: {Language.GetString(body.baseNameToken)}\nBodyIndex: {bodyIndex}\nSurvivorIndex: {survivorIndex}");
+                        Logger.LogDebug($"bodyIndex of cachedBody is not Toolbot.\nBody: {Language.GetString(body.baseNameToken)}\nBodyIndex: {body.bodyIndex}\nSurvivorIndex: {survivorIndex}");
                     }
                 }
             }
@@ -137,9 +136,8 @@ namespace Unordinal.ToolbotEquipmentSwap
 
             if (success)
             {
-                c.Index += 2;
-                c.RemoveRange(3);
-                c.Emit(OpCodes.Ldarg_0);
+                c.Index += 3;               // Jumps to 'x.MatchLdarg(0)'
+                c.RemoveRange(2);           // Removes the next three instructions (Ldarg, LdcI4, Call)
                 c.EmitDelegate<Action<ToolbotStanceBase>>(HandleToolbotStanceChange);
             }
             else
