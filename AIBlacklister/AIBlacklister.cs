@@ -18,7 +18,7 @@ namespace AIBlacklister
     {
         public const string PluginName = "AI Blacklister";
         public const string PluginGUID = "Unordinal.AIBlacklister";
-        public const string PluginVersion = "1.0.1";
+        public const string PluginVersion = "1.0.2";
         public static new ManualLogSource Logger { get; private set; }
 
         public void Awake()
@@ -53,6 +53,8 @@ namespace AIBlacklister
                 return;
             }
 
+            bool anyAdded = false;
+            Logger.LogMessage("Adding items to AI blacklist. Any blacklisted equipment will not be listed.");
             for (ItemIndex i = 0; (int)i < ItemCatalog.itemCount; i++)
             {
                 ItemDef itemDef = ItemCatalog.GetItemDef(i);
@@ -61,20 +63,29 @@ namespace AIBlacklister
                     Logger.LogWarning($"ItemDef for {i} was null - skipping.");
                     continue;
                 }
+                if (itemDef.ContainsTag(ItemTag.AIBlacklist) && AIBlacklisterConfig.AIItemBlacklist.Contains(itemDef.itemIndex))
+                {
+                    Logger.LogDebug($"Item '{i}' already exists in blacklist, skipping.");
+                    continue;
+                }
 
                 if (itemDef.DoesNotContainTag(ItemTag.AIBlacklist) && AIBlacklisterConfig.AIItemBlacklist.Contains(itemDef.itemIndex))
                 {
                     itemDef.tags = itemDef.tags.Add(ItemTag.AIBlacklist);
-                    Logger.LogInfo($"Added item '{i}' to AI blacklist.");
+                    Logger.LogMessage($"Added item '{i}' to AI blacklist.");
+                    anyAdded = true;
                 }
-                else if (itemDef.ContainsTag(ItemTag.AIBlacklist) && !AIBlacklisterConfig.AIItemBlacklist.Contains(itemDef.itemIndex))
+                /*else if (itemDef.ContainsTag(ItemTag.AIBlacklist) && !AIBlacklisterConfig.AIItemBlacklist.Contains(itemDef.itemIndex))
                 {
                     itemDef.tags = itemDef.tags.Remove(ItemTag.AIBlacklist);
                     Logger.LogInfo($"Removed item '{i}' from AI blacklist.");
-                }
+                }*/
             }
 
-            Logger.LogDebug($"AI blacklisted items: {string.Join(", ", GetAllAIBlacklistItems())}");
+            if (!anyAdded)
+                Logger.LogWarning("Loaded AI Blacklist but there were no non-blacklisted items to add to the blacklist!");
+
+            //Logger.LogDebug($"AI blacklisted items: {string.Join(", ", GetAllAIBlacklistItems())}");
         }
 
         private static IEnumerable<ItemIndex> GetAllAIBlacklistItems()

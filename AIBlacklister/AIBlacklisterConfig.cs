@@ -7,18 +7,17 @@ namespace AIBlacklister
 {
     public static class AIBlacklisterConfig
     {
-        private static readonly ItemIndex[] defaultItemBlacklist =
+        /*private static readonly ItemIndex[] defaultItemBlacklist =
         {
             ItemIndex.Dagger, ItemIndex.FallBoots, ItemIndex.Feather, ItemIndex.Mushroom, ItemIndex.WardOnLevel, ItemIndex.StunChanceOnHit,
             ItemIndex.Firework, ItemIndex.TreasureCache, ItemIndex.BossDamageBonus, ItemIndex.HeadHunter, ItemIndex.KillEliteFrenzy,
             ItemIndex.ExecuteLowHealthElite, ItemIndex.TPHealingNova, ItemIndex.LunarUtilityReplacement, ItemIndex.Thorns, 
             ItemIndex.LunarPrimaryReplacement, ItemIndex.Squid, ItemIndex.FocusConvergence, ItemIndex.MonstersOnShrineUse,
             ItemIndex.ShockNearby
-        };
+        };*/
         private static readonly EquipmentIndex[] defaultEquipBlacklist =
         {
-            EquipmentIndex.Blackhole, EquipmentIndex.CommandMissile, EquipmentIndex.OrbitalLaser, EquipmentIndex.Lightning, EquipmentIndex.Scanner, 
-            EquipmentIndex.Gateway
+            EquipmentIndex.Scanner, EquipmentIndex.Gateway
         };
 
         private static ItemIndex[] aiItemBlacklist;
@@ -34,8 +33,7 @@ namespace AIBlacklister
                 {
                     string[] blacklistIndices = 
                         AIItemBlacklistEntry.Value
-                        .Split(',')
-                        .Where(x => !string.IsNullOrWhiteSpace(x))
+                        .Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)
                         .Select(x => x.Trim())
                         .Distinct().ToArray();
 
@@ -73,15 +71,15 @@ namespace AIBlacklister
             AIItemBlacklistEntry = config.Bind(
                 "AIBlacklister",
                 "ItemBlacklist",
-                string.Join(", ", defaultItemBlacklist),
-                "The list of item indices that the AI cannot receive. The default values include the vanilla-blacklisted items.\n" +
+                string.Join(", ", ItemIndex.ShockNearby),
+                "The list of item indices that the AI cannot receive.\n" +
                 "See 'https://github.com/risk-of-thunder/R2Wiki/wiki/Item-&-Equipment-IDs-and-Names' for a list of valid IDs. (Use the code name.)");
 
             AIEquipBlacklistEntry = config.Bind(
                 "AIBlacklister",
                 "EquipmentBlacklist",
                 string.Join(", ", defaultEquipBlacklist),
-                "The list of equipment indices that the AI cannot receive (currently only the Scavenger). The default values include the vanilla-blacklisted items.\n" +
+                "The list of equipment indices that the AI cannot receive (currently only the Scavenger).\n" +
                 "See 'https://github.com/risk-of-thunder/R2Wiki/wiki/Item-&-Equipment-IDs-and-Names' for a list of valid IDs. (Use the code name.)");
         }
 
@@ -89,7 +87,7 @@ namespace AIBlacklister
         {
             ItemIndex index = ItemCatalog.FindItemIndex(indexStr);
             if (index == ItemIndex.None)
-                AIBlacklister.Logger.LogWarning($"{indexStr} is not a valid ItemIndex.");
+                AIBlacklister.Logger.LogWarning($"Tried to add item to blacklist but '{indexStr}' is not a valid ItemIndex.");
 
             return index;
         }
@@ -98,7 +96,7 @@ namespace AIBlacklister
         {
             EquipmentIndex index = EquipmentCatalog.FindEquipmentIndex(indexStr);
             if (index == EquipmentIndex.None)
-                AIBlacklister.Logger.LogWarning($"{indexStr} is not a valid EquipmentIndex.");
+                AIBlacklister.Logger.LogWarning($"Tried to add equipment to blacklist but '{indexStr}' is not a valid EquipmentIndex.");
 
             return index;
         }
